@@ -1,0 +1,12 @@
+.department-card:hover{
+    transform: translateY(-5px);
+    transform: scale(1.02,1.02);
+
+}
+.department-name{
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #00468b;
+    font-weight: 700;
+    text-transform: uppercase;
+}

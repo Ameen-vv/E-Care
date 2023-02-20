@@ -1,0 +1,61 @@
+.Banner{
+    position: relative;
+    z-index: -1;
+}
+.hero {
+  height: 100vh;
+  background-size: cover ;
+  background-position: center;
+  display: flex;
+  align-items: center;
+}
+
+.hero-text-container {
+  text-align: left;
+  color: white;
+  max-width: 50%;
+  padding: 40px;
+}
+
+.hero-title {
+  font-size: 48px;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.hero-subtitle {
+  font-size: 24px;
+  font-weight: lighter;
+  margin-bottom: 40px;
+}
+
+.hero-button {
+  background-color: #0AB3B8;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 40px;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.prev-button {
+  margin-right: 10px;
+}
+
+@media only screen and (max-width: 767px) {
+  .hero-text-container {
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .hero-title {
+    font-size: 36px;
+  }
+
+  .hero-subtitle {
+    font-size: 18px;
+  }
+}
+
+
