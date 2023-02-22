@@ -18,6 +18,10 @@ const userSchema = new Schema({
     },
     password:{
         type:String
+    },
+    block:{
+        type:Boolean,
+        default:false
     }
 
 })

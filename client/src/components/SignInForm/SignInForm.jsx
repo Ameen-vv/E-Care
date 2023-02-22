@@ -1,10 +1,86 @@
 import React, { useState } from 'react'
 import {useNavigate} from 'react-router-dom'
 import './SignInForm.css'
+import axios from 'axios'
+import {userUrl,doctorUrl} from '../../../apiLinks/apiLinks'
 
 function SignInForm() {
     const [signInForm, setSignInForm] = useState('client')
     const Navigate = useNavigate()
+    const [email,setEmail] = useState('')
+    const [password,setPassword] = useState('')
+    const [doctorEmail,setDoctorEmail] = useState('')
+    const [doctorPass,setDoctorPass] = useState('')
+    const [incorrectPass,setIncorrectPass] = useState(false)
+    const [userErr,setUserErr] = useState(false)
+    const [block,setBlock] = useState(false)
+    const [reject,setReject] = useState(false)
+    let userData = {
+        email,
+        password
+    }
+    let doctorData = {
+        email:doctorEmail,
+        password:doctorPass
+    }
+    const userSignIN = (e)=>{
+        e.preventDefault()
+        axios.post(`${userUrl}signIn`,userData).then((response)=>{
+            if(response.data.user){
+                setUserErr(false)
+                if(!response.data.block){
+                    setBlock(false)
+                    if(response.data.password){
+                        setIncorrectPass(false)
+                        document.cookie = `token=${response.data.token}`
+                        Navigate('/')
+                    }else{
+                        console.log('incorrect pass');
+                        setIncorrectPass(true)
+                    }   
+                }else{
+                    setBlock(true)
+                    console.log('user is blocked');
+                }
+
+            }else{
+                setUserErr(true)
+                console.log('no user');
+            }
+        })
+
+    }
+    const doctorSignIn = (e)=>{
+        e.preventDefault()
+        axios.post(`${doctorUrl}signIn`,doctorData).then((response)=>{
+            if(response.data.user){
+                setUserErr(false)
+                if(!response.data.block){
+                    setBlock(false)
+                    if(response.data.password){
+                        setIncorrectPass(false)
+                        if(response.data.status === 'success'){
+                            document.cookie = `DoctorToken=${response.data.token}`
+                            Navigate('/doctor/home')
+                        }else if(response.data.status === 'pending'){
+                            Navigate('/doctor/verification')
+                        }else{
+                            setReject(true)
+                        }
+
+                    }else{
+                        setIncorrectPass(true)
+                    }
+
+                }else{
+                    setBlock(true)
+                }
+            }else{
+                setUserErr(true)
+            }
+        })
+
+    }
     return (
         <section className="bg-white dark:bg-gray-900">
             <div className="flex justify-center min-h-screen">
@@ -45,22 +121,29 @@ function SignInForm() {
                             </div>
                         </div>
                         {
-                            signInForm === 'client' && <form className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-1">
+                            signInForm === 'client' && <form className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-1" onSubmit={userSignIN}>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-600 dark:text-gray-200">Email address</label>
-                                    <input type="email" placeholder="johnsnow@example.com" className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md md:w-3/4 dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="email" placeholder="johnsnow@example.com" onChange={(e)=>setEmail(e.target.value)} className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md md:w-3/4 dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    { userErr &&
+                                        <p className='text-danger'>There is no user with this email</p>}
+                                    { block &&
+                                        <p className='text-danger'>You are blocked</p>}
+
                                 </div>
 
 
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-600 dark:text-gray-200">Password</label>
-                                    <input type="password" placeholder="Enter your password" className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md md:w-3/4 dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="password" placeholder="Enter your password" onChange={(e)=>setPassword(e.target.value)} className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md md:w-3/4 dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    { incorrectPass &&
+                                        <p className="text-danger">Incorrect Password</p>}
                                 </div>
 
 
 
                                 <button
-                                    className="flex sign-in items-center justify-between w-1/2 md:w-1/5 px-6 py-3 text-sm tracking-wide text-white capitalize transition-colors duration-300 transform  rounded-md sign-up focus:outline-none  focus:ring focus:ring-blue-300 focus:ring-opacity-50"  onClick={()=>Navigate('/')}>
+                                    className="flex sign-in items-center justify-between w-1/2 md:w-1/5 px-6 py-3 text-sm tracking-wide text-white capitalize transition-colors duration-300 transform  rounded-md sign-up focus:outline-none  focus:ring focus:ring-blue-300 focus:ring-opacity-50"  >
                                     <span>Sign In </span>
                                     
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 rtl:-scale-x-100" viewBox="0 0 20 20" fill="currentColor">
@@ -73,22 +156,31 @@ function SignInForm() {
                         }
                         {
                             signInForm === 'doctor' &&
-                            <form className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-1">
+                            <form className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-1" onSubmit={doctorSignIn}>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-600 dark:text-gray-200">Email address</label>
-                                    <input type="email" placeholder="doctor@example.com" className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md md:w-3/4 dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="email" placeholder="doctor@example.com" onChange={(e)=>setDoctorEmail(e.target.value)} className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md md:w-3/4 dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    { userErr &&
+                                        <p className='text-danger'>There is no user with this email</p>}
+                                    { block &&
+                                        <p className='text-danger'>You are blocked</p>}
+                                    { reject &&
+                                        <p className='text-danger'>Sorry, your profile is rejected</p>}   
+                                        
                                 </div>
 
 
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-600 dark:text-gray-200">Password</label>
-                                    <input type="password" placeholder="Enter your password" className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md md:w-3/4 dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="password" placeholder="Enter your password" onChange={(e)=>setDoctorPass(e.target.value)} className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md md:w-3/4 dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    { incorrectPass &&
+                                        <p className="text-danger">Incorrect Password</p>}    
                                 </div>
 
 
 
                                 <button
-                                    className="flex sign-in items-center justify-between w-1/2 md:w-1/5 px-6 py-3 text-sm tracking-wide text-white capitalize transition-colors duration-300 transform  rounded-md sign-up focus:outline-none  focus:ring focus:ring-blue-300 focus:ring-opacity-50"  onClick={()=>Navigate('/doctor/home')}>
+                                    className="flex sign-in items-center justify-between w-1/2 md:w-1/5 px-6 py-3 text-sm tracking-wide text-white capitalize transition-colors duration-300 transform  rounded-md sign-up focus:outline-none  focus:ring focus:ring-blue-300 focus:ring-opacity-50">
                                     <span>Sign In </span>
 
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 rtl:-scale-x-100" viewBox="0 0 20 20" fill="currentColor">

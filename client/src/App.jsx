@@ -12,22 +12,34 @@ import DoctorHome from './pages/Doctor/Doctor_HomePage/DoctorHome'
 import Doctor_Profile from './pages/Doctor/Doctor_Profile/Doctor_Profile'
 import Appointment from './pages/User/Appointment/Appointment'
 import WalletPage from './pages/User/Wallet/WalletPage'
+import PrivateRoutes from './pvtRoutes/PrivateRoutes'
+import ProfileVerification from './pages/Doctor/Verification/ProfileVerification'
+import DoctorRoutes from './pvtRoutes/DoctorRoutes'
 
 function App() {
 
   return (
     <Router>
       <Routes>
-        <Route exact path='/' element={<Home/>}/>
-        <Route path='/signUp' element={<SignUp/>}/>
-        <Route path='/signIn' element={<SignIn/>}/>
-        <Route path='/profile' element={<ProfilePage/>}/>
-        <Route path='/departments' element={<DepartmentPage/>}/>
+        <Route element={<PrivateRoutes/>}>
+            <Route path='/profile' element={<ProfilePage/>}/>
+            <Route path='/book' element={<Appointment/>}/>
+            <Route path = '/wallet' element={<WalletPage/>}/>
+        </Route> 
+        <Route element={<DoctorRoutes/>}>
         <Route path='/doctorView' element={<DoctorPage/>}/>
         <Route path='/doctor/home' element={<DoctorHome/>}/>
         <Route path='/doctor/profile' element={<Doctor_Profile/>}/>
-        <Route path='/book' element={<Appointment/>}/>
-        <Route path = '/wallet' element={<WalletPage/>}/>
+        </Route>
+
+
+
+        <Route exact path='/' element={<Home/>}/>
+        <Route path='/signUp' element={<SignUp/>}/>
+        <Route path='/signIn' element={<SignIn/>}/>
+        <Route path='/departments' element={<DepartmentPage/>}/>
+        
+        <Route path='/doctor/verification' element={<ProfileVerification/>}/>
       </Routes>
     </Router>
   )

@@ -1,29 +1,61 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import './SignUpForm.css'
-import {useNavigate} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import {userUrl} from '../../../apiLinks/apiLinks'
+import { userUrl, doctorUrl } from '../../../apiLinks/apiLinks'
 
 
 function SignUpForm() {
     const Navigate = useNavigate()
-    const [fullName,setFullName] = useState('')
-    const [phone,setPhone] = useState('')
-    const [email,setEmail] = useState('')
-    const [dateOfBirth,setDateOfBirth] = useState()
-    const [password,setPassword] = useState('')
-    const [confirmPass,setConfirmPass] = useState('')
-    const [confirmPassErr,setConfirmPassErr] = useState(false)
-    const [doctorFullname,setDoctorFullName] = useState('')
-    const [doctorEmail,setDoctorEmail] = useState('')
-    const [doctorPhone,setDoctorPhone] = useState('')
-    const [doctorDateOfBirth,setDoctorDateOfBirth] = useState('')
-    const [doctorQualification,setDoctorQualification] = useState('')
-    const [doctorAddress,setDoctorAddress] = useState('')
-    const [doctorHospital,setDoctorHospital] = useState('')
-    const [doctorPassword,setDoctorPassword] = useState('')
-    const [doctorConfirmPass,setDoctorConfirmPass] = useState('')
+    const [signUpForm, setSignUpForm] = useState('client')
+    const [fullName, setFullName] = useState('')
+    const [phone, setPhone] = useState('')
+    const [email, setEmail] = useState('')
+    const [dateOfBirth, setDateOfBirth] = useState()
+    const [password, setPassword] = useState('')
+    const [confirmPass, setConfirmPass] = useState('')
+    const [confirmPassErr, setConfirmPassErr] = useState(false)
+    const [doctorFullname, setDoctorFullName] = useState('')
+    const [doctorEmail, setDoctorEmail] = useState('')
+    const [doctorPhone, setDoctorPhone] = useState('')
+    const [doctorDateOfBirth, setDoctorDateOfBirth] = useState('')
+    const [doctorQualification, setDoctorQualification] = useState('')
+    const [doctorAddress, setDoctorAddress] = useState('')
+    const [doctorHospital, setDoctorHospital] = useState('')
+    const [doctorPassword, setDoctorPassword] = useState('')
+    const [doctorDepartment, setDoctorDepartment] = useState('')
+    const [doctorConfirmPass, setDoctorConfirmPass] = useState('')
+    const [userExist, setUserExist] = useState(false)
+    const [doctorExist, setDoctorExist] = useState(false)
+    const [otp, setOtp] = useState('')
+    const [otpErr, setOtpErr] = useState(false)
+    const [minutes, setMinutes] = useState(1);
+    const [seconds, setSeconds] = useState(30);
+    useEffect(() => {
+        if (signUpForm === 'otp') {
+            const interval = setInterval(() => {
+                if (seconds > 0) {
+                    setSeconds(seconds - 1);
+                }
 
+                if (seconds === 0) {
+                    if (minutes === 0) {
+                        clearInterval(interval);
+                    } else {
+                        setSeconds(59);
+                        setMinutes(minutes - 1);
+                    }
+                }
+            }, 1000);
+
+            return () => {
+                clearInterval(interval);
+            };
+        }
+
+
+
+    }, [seconds])
 
     const userData = {
         fullName,
@@ -34,31 +66,74 @@ function SignUpForm() {
     }
     const doctorData = {
 
-        Fullname:doctorFullname,
-        email:doctorEmail,
-        phone:doctorPhone,
-        dateOfBirth:doctorDateOfBirth,
-        qualification:doctorQualification,
-        address:doctorAddress,
-        hospital:doctorHospital,
-        password:doctorPassword
+        fullName: doctorFullname,
+        email: doctorEmail,
+        phone: doctorPhone,
+        dateOfBirth: doctorDateOfBirth,
+        qualification: doctorQualification,
+        address: doctorAddress,
+        hospital: doctorHospital,
+        password: doctorPassword,
+        department: doctorDepartment
 
     }
-    const handleSubmit=(e)=>{
+    const sentOtp = (e) => {
         e.preventDefault()
-        if(password===confirmPass){
+        if (password === confirmPass) {
             setConfirmPassErr(false)
-            axios.post(`${userUrl}signUp`,userData).then((response)=>{
-                  console.log(response);  
+            axios.post(`${userUrl}getOtp`, userData).then((response) => {
+                console.log(response.data.status);
+                if (response.data.status) {
+                    setUserExist(false)
+                    setSignUpForm('otp')
+                } else {
+                    setUserExist(true)
+                }
+
             })
-        }else{
+        } else {
             setConfirmPassErr(true)
         }
-       
-        
+
+
     }
-    const [signUpForm, setSignUpForm] = useState('client')
-    
+    const verifyOtpAndSignUp = (e) => {
+        e.preventDefault()
+        axios.post(`${userUrl}signUp`, { userData, otp }).then((response) => {
+            if (response.data.status) {
+                setOtpErr(true)
+                Navigate('/')
+            } else {
+                setOtpErr(true)
+            }
+        })
+    }
+    const resendOtp = () => {
+        setMinutes(1)
+        setSeconds(30)
+        axios.post(`${userUrl}resendOtp`, { email }).then((response) => {
+            if (response.data.status) {
+                console.log('otpSent');
+            }
+        })
+    }
+    const doctorSignUp = (e) => {
+        e.preventDefault()
+       if(doctorConfirmPass===doctorPassword){
+        axios.post(`${doctorUrl}signUp`, doctorData).then((response) => {
+            if (response.data.status) {
+                setDoctorExist(false)
+                Navigate('/signIn')
+            } else {
+                setDoctorExist(true)
+            }
+        })
+       }else{
+            setConfirmPassErr(true)
+       }
+
+    }
+
     return (
         <section className="bg-white dark:bg-gray-900">
             <div className="flex justify-center min-h-screen">
@@ -68,14 +143,14 @@ function SignUpForm() {
                 <div className="flex items-center w-full max-w-3xl p-8 mx-auto lg:px-12 lg:w-3/5">
                     <div className="w-full">
                         <h1 className="text-2xl font-semibold tracking-wider text-gray-800 capitalize dark:text-white">
-                            Get your free account now.
+                            Get your account now.
                         </h1>
 
                         <p className="mt-4 text-gray-500 dark:text-gray-400">
                             Let’s get you all set up so you can verify your personal account and begin setting up your profile.
                         </p>
 
-                        <div className="mt-6">
+                        <div className={`mt-6 ${signUpForm === 'otp' && 'hide-acount-type'}`}>
                             <h1 className="text-gray-500 dark:text-gray-300">Select type of account</h1>
 
                             <div className="mt-3 md:flex md:items-center md:-mx-2">
@@ -101,37 +176,41 @@ function SignUpForm() {
                             </div>
                         </div>
                         {
-                            signUpForm === 'client' && <form className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-2" onSubmit={handleSubmit}>
+                            signUpForm === 'client' && <form className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-2" onSubmit={sentOtp}>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400">Full Name</label>
-                                    <input type="text" placeholder="John" onChange={(e)=>setFullName(e.target.value)} required className="block w-full px-5 py-3 mt-2 text-black-800 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="text" placeholder="John" onChange={(e) => setFullName(e.target.value)} required className="block w-full px-5 py-3 mt-2 text-black-800 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
                                 </div>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400">Phone number</label>
-                                    <input type="text" placeholder="XXX-XX-XXXX-XXX" onChange={(e)=>setPhone(e.target.value)} required className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="text" placeholder="XXX-XX-XXXX-XXX" onChange={(e) => setPhone(e.target.value)} required className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
                                 </div>
 
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400">Email address</label>
-                                    <input type="email" placeholder="johnsnow@example.com" onChange={(e)=>setEmail(e.target.value)} required className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="email" placeholder="johnsnow@example.com" onChange={(e) => setEmail(e.target.value)} required className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    {
+                                        userExist && <p className='text-danger'>Email already Exists</p>
+
+                                    }
                                 </div>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400">DOB</label>
-                                    <input type="date" onChange={(e)=>setDateOfBirth(e.target.value)} required className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="date" onChange={(e) => setDateOfBirth(e.target.value)} required className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
                                 </div>
 
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400 ">Password</label>
-                                    <input type="password" placeholder="Enter your password" onChange={(e)=>setPassword(e.target.value)} required className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="password" placeholder="Enter your password" onChange={(e) => setPassword(e.target.value)} required className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
                                 </div>
 
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400 ">Confirm password</label>
-                                    <input type="password" placeholder="Enter your password" onChange={(e)=>{
+                                    <input type="password" placeholder="Enter your password" onChange={(e) => {
                                         setConfirmPass(e.target.value)
                                     }} required className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
                                     {
-                                        confirmPassErr && <p className='text-danger'>error</p>
+                                        confirmPassErr && <p className='text-danger'>Incorrect Password</p>
                                     }
                                 </div>
 
@@ -148,52 +227,76 @@ function SignUpForm() {
                             </form>
                         }
                         {
-                            signUpForm === 'doctor' && <form className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-2">
+                            signUpForm === 'doctor' && <form className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-2" onSubmit={doctorSignUp}>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400">Full Name</label>
-                                    <input type="text" placeholder="Doctor" onChange={(e)=>setDoctorFullName(e.target.value)} className="block w-full px-5 py-3 mt-2 text-black-800 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="text" placeholder="Doctor" onChange={(e) => setDoctorFullName(e.target.value)} className="block w-full px-5 py-3 mt-2 text-black-800 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
                                 </div>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400">Phone number</label>
-                                    <input type="text" placeholder="XXX-XX-XXXX-XXX" onChange={(e)=>setDoctorPhone(e.target.value)} className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="text" placeholder="XXX-XX-XXXX-XXX" onChange={(e) => setDoctorPhone(e.target.value)} className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
                                 </div>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400 ">Email address</label>
-                                    <input type="email" placeholder="johnsnow@example.com" onChange={(e)=>setDoctorEmail(e.target.value)} className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="email" placeholder="johnsnow@example.com" onChange={(e) => setDoctorEmail(e.target.value)} className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    {
+                                        doctorExist && <p className='text-danger'>Email already Exists</p>
+
+                                    }
                                 </div>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400 ">DOB</label>
-                                    <input type="date" onChange={(e)=>setDoctorDateOfBirth(e.target.value)} className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="date" onChange={(e) => setDoctorDateOfBirth(e.target.value)} className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
                                 </div>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400">Qualification</label>
-                                    <input type="text" placeholder="MBBS,MD, etc" onChange={(e)=>setDoctorQualification(e.target.value)} className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="text" placeholder="MBBS,MD, etc" onChange={(e) => setDoctorQualification(e.target.value)} className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
                                 </div>
                                 <div>
-                                    <label className="block mb-2 text-sm text-gray-400">Address</label>
-                                    <input type="text" placeholder="Address" onChange={(e)=>setDoctorAddress(e.target.value)} className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
-                                </div>
-                                <div>
-                                    <label className="block mb-2 text-sm text-gray-400">Hospital</label>
-                                    <input type="text" placeholder="MBBS,MD, etc" onChange={(e)=>setDoctorHospital(e.target.value)} className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
-                                </div>
-                                <div>
-                                    <label className="block mb-2 text-sm text-gray-400">Upload Certificates</label>
-                                    <input type="file" placeholder="MBBS,MD, etc" className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <label className="block mb-2 text-sm text-gray-400">Department</label>
+                                    <select onChange={(e) => setDoctorDepartment(e.target.value)} required className="block w-full px-5 py-3 mt-2 text-black-800 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40">
+                                        <option value="">Select department</option>
+                                        <option value="Cardiology">Cardiology</option>
+                                        <option value="Dermatology">Dermatology</option>
+                                        <option value="Endocrinology">Endocrinology</option>
+                                        <option value="Gastroenterology">Gastroenterology</option>
+                                        <option value="Hematology">Hematology</option>
+                                        <option value="Neurology">Neurology</option>
+                                        <option value="Oncology">Oncology</option>
+                                        <option value="Pediatrics">Pediatrics</option>
+                                        <option value="Psychiatry">Psychiatry</option>
+                                        <option value="Surgery">Surgery</option>
+                                    </select>
                                 </div>
 
                                 <div>
+                                    <label className="block mb-2 text-sm text-gray-400">Address</label>
+                                    <input type="text" placeholder="Address" onChange={(e) => setDoctorAddress(e.target.value)} className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                </div>
+                                <div>
+                                    <label className="block mb-2 text-sm text-gray-400">Hospital</label>
+                                    <input type="text" placeholder="MBBS,MD, etc" onChange={(e) => setDoctorHospital(e.target.value)} className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                </div>
+                                {/* <div>
+                                    <label className="block mb-2 text-sm text-gray-400">Upload Certificates</label>
+                                    <input type="file" placeholder="MBBS,MD, etc" className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                </div> */}
+
+                                <div>
                                     <label className="block mb-2 text-sm text-gray-400 ">Password</label>
-                                    <input type="password" placeholder="Enter your password" onChange={(e)=>setDoctorPassword(e.target.value)} className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="password" placeholder="Enter your password" onChange={(e) => setDoctorPassword(e.target.value)} className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
                                 </div>
 
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400 ">Confirm password</label>
-                                    <input type="password" placeholder="Enter your password" onChange={(e)=>setDoctorConfirmPass(e.target.value)} className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="password" placeholder="Enter your password" onChange={(e) => setDoctorConfirmPass(e.target.value)} className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    {
+                                        confirmPassErr && <p className='text-danger'>Incorrect Password</p>
+                                    }
                                 </div>
 
                                 <button
-                                    className="flex items-center justify-between w-full px-6 py-3 text-sm tracking-wide text-white capitalize transition-colors duration-300 transform  rounded-md sign-up focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50" onClick={()=>Navigate('/signIn')}>
+                                    className="flex items-center justify-between w-full px-6 py-3 text-sm tracking-wide text-white capitalize transition-colors duration-300 transform  rounded-md sign-up focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50" >
                                     <span>Sign Up </span>
 
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 rtl:-scale-x-100" viewBox="0 0 20 20" fill="currentColor">
@@ -205,30 +308,38 @@ function SignUpForm() {
                             </form>
                         }
                         {
-                            signUpForm === 'otp' && <form className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-1">
-                           
-                            <div>
-                                <label className="block mb-2 text-sm text-gray-400">Otp</label>
-                                <input type="text" placeholder="XXX-XX-XXXX-XXX" className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
-                            </div>
-                           
-                            
-                            
-                           
-                          
-                          
+                            signUpForm === 'otp' && <form className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-1" onSubmit={verifyOtpAndSignUp}>
 
-                            <button
-                                className="flex items-center justify-between w-1/2 px-6 py-3 text-sm tracking-wide text-white capitalize transition-colors duration-300 transform  rounded-md sign-up focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50" onClick={()=>Navigate('/signIn')}>
-                                <span>Verify Otp </span>
+                                <div>
+                                    <label className="block mb-2 text-sm text-gray-400">Otp</label>
+                                    <input type="text" placeholder="XXX-XXX" className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" onChange={(e) => setOtp(e.target.value)} />
+                                    {
+                                        otpErr && <p className='text-danger'>Incorrect Otp</p>
+                                    }
 
-                                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 rtl:-scale-x-100" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd"
-                                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                        clipRule="evenodd" />
-                                </svg>
-                            </button>
-                        </form>
+                                </div>
+
+                                <button
+                                    className="flex items-center justify-between w-1/2 px-6 py-3 text-sm tracking-wide text-white capitalize transition-colors duration-300 transform  rounded-md sign-up focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50" >
+                                    <span>Verify Otp </span>
+
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 rtl:-scale-x-100" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd"
+                                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                            clipRule="evenodd" />
+                                    </svg>
+                                </button>
+                                <div className='w-full justify-center'>
+                                    {seconds > 0 || minutes > 0 ? (
+                                        <p className='text-danger'>
+                                            Time Remaining: {minutes < 10 ? `0${minutes}` : minutes}:
+                                            {seconds < 10 ? `0${seconds}` : seconds}
+                                        </p>
+                                    ) : (
+                                        <p className='text-primary' onClick={resendOtp} style={{ cursor: 'pointer' }}>Resend Otp</p>
+                                    )}
+                                </div>
+                            </form>
                         }
 
                     </div>

@@ -7,6 +7,8 @@ import userRouter from './routes/user.js'
 import adminRouter from './routes/admin.js'
 import doctorRouter from './routes/doctor.js'
 import cors from 'cors'
+import dotenv from 'dotenv'
+dotenv.config()
 
 const app = express()
 
