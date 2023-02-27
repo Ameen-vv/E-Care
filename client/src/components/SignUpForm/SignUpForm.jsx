@@ -29,7 +29,7 @@ function SignUpForm() {
     const [doctorExist, setDoctorExist] = useState(false)
     const [otp, setOtp] = useState('')
     const [otpErr, setOtpErr] = useState(false)
-    const [minutes, setMinutes] = useState(1);
+    const [minutes, setMinutes] = useState(0);
     const [seconds, setSeconds] = useState(30);
     useEffect(() => {
         if (signUpForm === 'otp') {
@@ -55,7 +55,7 @@ function SignUpForm() {
 
 
 
-    }, [seconds])
+    }, [seconds,signUpForm])
 
     const userData = {
         fullName,
@@ -101,16 +101,16 @@ function SignUpForm() {
         e.preventDefault()
         axios.post(`${userUrl}signUp`, { userData, otp }).then((response) => {
             if (response.data.status) {
-                setOtpErr(true)
-                Navigate('/')
+                Navigate('/signIn')
             } else {
                 setOtpErr(true)
             }
         })
     }
     const resendOtp = () => {
-        setMinutes(1)
+        setMinutes(0)
         setSeconds(30)
+        console.log(email);
         axios.post(`${userUrl}resendOtp`, { email }).then((response) => {
             if (response.data.status) {
                 console.log('otpSent');

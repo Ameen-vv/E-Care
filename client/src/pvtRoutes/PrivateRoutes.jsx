@@ -1,36 +1,30 @@
-import {useEffect,useState} from 'react'
-import {Navigate,Outlet} from 'react-router-dom'
+import { useEffect, useState, useRef } from 'react'
+import { useNavigate,Navigate, Outlet } from 'react-router-dom'
 import axios from 'axios'
 import { userUrl } from '../../apiLinks/apiLinks'
 
 const PrivateRoutes = () => {
-  const [userCheck,setUserCheck] = useState(false)  
-  const [check,setCheck] = useState(false)
-  useEffect(()=>{
-    setUserCheck(true)
+  const Navigate = useNavigate()
+  const [userCheck, setUserCheck] = useState(false)
+  useEffect(() => {
     const token = document.cookie
-    console.log(document.cookie);
-    axios.post(`${userUrl}authenticate`,token).then((response)=>{
-        console.log(response.data);
-            if(response.data.user && response.data.type === 'user'){
-                setUserCheck(true)
-                setCheck(true)
-            }else{
-                setUserCheck(false)
-                
-            }
+    axios.post(`${userUrl}authenticate`, token).then((response) => {
+      if (!response.data.user) {
+        setUserCheck(false)
+        console.log('checl');
+        Navigate('/signIn')
+      }else{
+        console.log('success');
+        setUserCheck(true)
+      }
     })
+  }, [])
 
-  },[])  
-
-    console.log(check);
-    console.log(userCheck);
-  
-
-
-  return (
-      setUserCheck ? <Outlet/> : <Navigate to='/signIn'/>
+    return (
+       userCheck && <Outlet /> 
     )
-  }
+   
 
-  export default PrivateRoutes
+}
+
+export default PrivateRoutes

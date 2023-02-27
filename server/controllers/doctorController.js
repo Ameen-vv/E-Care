@@ -2,6 +2,7 @@ import doctorModel from "../model/doctorSchema.js";
 import bcrypt from 'bcrypt'
 import {generateToken} from '../jwtAuth/generateJwt.js'
 import  jwt  from "jsonwebtoken"
+import { response } from "express";
 
 
 export const doctorSignUp = async (req, res) => {
@@ -72,15 +73,29 @@ export const doctorSignIn =async (req, res) => {
     }
 }
 
-// export const doctorAuth = (req,res)=>{
-//     let token = req.body.DoctorToken
-//     if(token){
-//         jwt.verify(token,process.env.TOKEN_SECRET,async(err,result){
-//             if(!err){
-
-//             }
-//         })
-//     }else{
-
-//     }
-// }
+export const doctorAuth = (req,res)=>{
+    let token = req.body.DoctorToken
+    console.log(req.body);
+    let response = {}
+    if(token){
+        jwt.verify(token,process.env.TOKEN_SECRET,async(err,result)=>{
+            if(!err){
+                let user = await  doctorModel.findOne({_id:result.doctorId})
+                if(!user.block){
+                    response.user = true
+                    res.status(200).json(response)
+                }else{
+                    response.user = false
+                    res.status(200).json(response)
+                }
+            }else{
+                response.user = false
+                res.status(200).json(response)
+            }
+        })
+    }else{
+        response.user = false
+        res.status(200).json(response)
+        console.log('error');
+    }
+}
