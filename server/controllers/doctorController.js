@@ -2,33 +2,19 @@ import doctorModel from "../model/doctorSchema.js";
 import bcrypt from 'bcrypt'
 import {generateToken} from '../jwtAuth/generateJwt.js'
 import  jwt  from "jsonwebtoken"
-import { response } from "express";
+import { doctorOtp, signingUp } from "./helpers/doctorHelper.js";
 
 
-export const doctorSignUp = async (req, res) => {
-    try {
-        let doctor = req.body
-        let response = {}
-        let doctorCheck = await doctorModel.findOne({ email: doctor.email })
-        if (doctorCheck) {
-            response.status = false
-            res.status(200).json(response)
-        } else {
-            await bcrypt.hash(doctor.password, 10).then((hash) => {
-                doctor.password = hash
-            })
-            let newDoctor = new doctorModel(doctor)
-            await newDoctor.save().then(() => {
-                response.status = true
-                res.status(200).json(response)
-            })
-
-        }
-    } catch (error) {
-        console.log(error);
-    }
+export const sendOtp=  (req, res) => {
+    doctorOtp(req.body.doctorEmail).then((response)=>{
+        res.status(200).json(response)
+    })
 }
-
+export const doctorSignUp = (req,res)=>{
+    signingUp(req.body.doctorData,req.body.otp).then((response)=>{
+        res.status(200).json(response)
+    })
+}
 export const doctorSignIn =async (req, res) => {
     try {
         let response = {}

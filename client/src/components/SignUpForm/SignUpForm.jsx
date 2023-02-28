@@ -89,22 +89,16 @@ function SignUpForm() {
                 } else {
                     setUserExist(true)
                 }
-
             })
         } else {
             setConfirmPassErr(true)
         }
-
-
     }
+    
     const verifyOtpAndSignUp = (e) => {
         e.preventDefault()
         axios.post(`${userUrl}signUp`, { userData, otp }).then((response) => {
-            if (response.data.status) {
-                Navigate('/signIn')
-            } else {
-                setOtpErr(true)
-            }
+            response.data.status ? Navigate('/signIn') : setOtpErr(true)
         })
     }
     const resendOtp = () => {
@@ -119,20 +113,27 @@ function SignUpForm() {
     }
     const doctorSignUp = (e) => {
         e.preventDefault()
-       if(doctorConfirmPass===doctorPassword){
-        axios.post(`${doctorUrl}signUp`, doctorData).then((response) => {
-            if (response.data.status) {
-                setDoctorExist(false)
-                Navigate('/signIn')
-            } else {
-                setDoctorExist(true)
-            }
+        axios.post(`${doctorUrl}signUp`,{doctorData,otp}).then((response)=>{
+            response.data.status ? Navigate('/signIn') : setOtpErr(true)
         })
-       }else{
-            setConfirmPassErr(true)
-       }
 
     }
+    const doctorOtp = (e)=>{
+        e.preventDefault()
+        if(doctorConfirmPass===doctorPassword){
+            axios.post(`${doctorUrl}getOtp`, {doctorEmail}).then((response) => {
+                if (response.data.status) {
+                    setDoctorExist(false)
+                    setSignUpForm('doctor-otp')
+                } else {
+                    setDoctorExist(true)
+                }
+            })
+           }else{
+                setConfirmPassErr(true)
+           }
+    } 
+
 
     return (
         <section className="bg-white dark:bg-gray-900">
@@ -227,18 +228,18 @@ function SignUpForm() {
                             </form>
                         }
                         {
-                            signUpForm === 'doctor' && <form className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-2" onSubmit={doctorSignUp}>
+                            signUpForm === 'doctor' && <form className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-2" onSubmit={doctorOtp}>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400">Full Name</label>
-                                    <input type="text" placeholder="Doctor" onChange={(e) => setDoctorFullName(e.target.value)} className="block w-full px-5 py-3 mt-2 text-black-800 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="text" placeholder="Doctor" required onChange={(e) => setDoctorFullName(e.target.value)} className="block w-full px-5 py-3 mt-2 text-black-800 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
                                 </div>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400">Phone number</label>
-                                    <input type="text" placeholder="XXX-XX-XXXX-XXX" onChange={(e) => setDoctorPhone(e.target.value)} className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="text" placeholder="XXX-XX-XXXX-XXX" required onChange={(e) => setDoctorPhone(e.target.value)} className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
                                 </div>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400 ">Email address</label>
-                                    <input type="email" placeholder="johnsnow@example.com" onChange={(e) => setDoctorEmail(e.target.value)} className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="email" placeholder="johnsnow@example.com" required onChange={(e) => setDoctorEmail(e.target.value)} className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
                                     {
                                         doctorExist && <p className='text-danger'>Email already Exists</p>
 
@@ -246,15 +247,15 @@ function SignUpForm() {
                                 </div>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400 ">DOB</label>
-                                    <input type="date" onChange={(e) => setDoctorDateOfBirth(e.target.value)} className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="date" required onChange={(e) => setDoctorDateOfBirth(e.target.value)} className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
                                 </div>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400">Qualification</label>
-                                    <input type="text" placeholder="MBBS,MD, etc" onChange={(e) => setDoctorQualification(e.target.value)} className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="text" required placeholder="MBBS,MD, etc" onChange={(e) => setDoctorQualification(e.target.value)} className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
                                 </div>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400">Department</label>
-                                    <select onChange={(e) => setDoctorDepartment(e.target.value)} required className="block w-full px-5 py-3 mt-2 text-black-800 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40">
+                                    <select  onChange={(e) => setDoctorDepartment(e.target.value)} required className="block w-full px-5 py-3 mt-2 text-black-800 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40">
                                         <option value="">Select department</option>
                                         <option value="Cardiology">Cardiology</option>
                                         <option value="Dermatology">Dermatology</option>
@@ -312,7 +313,7 @@ function SignUpForm() {
 
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400">Otp</label>
-                                    <input type="text" placeholder="XXX-XXX" className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" onChange={(e) => setOtp(e.target.value)} />
+                                    <input type="text" required placeholder="XXX-XXX" className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" onChange={(e) => setOtp(e.target.value)} />
                                     {
                                         otpErr && <p className='text-danger'>Incorrect Otp</p>
                                     }
@@ -341,6 +342,43 @@ function SignUpForm() {
                                 </div>
                             </form>
                         }
+                         {
+                            signUpForm === 'doctor-otp' && <form className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-1" onSubmit={doctorSignUp}>
+
+                                <div>
+                                    <label className="block mb-2 text-sm text-gray-400">Otp</label>
+                                    <input type="text" required placeholder="XXX-XXX" className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" onChange={(e) => setOtp(e.target.value)} />
+                                    {
+                                        otpErr && <p className='text-danger'>Incorrect Otp</p>
+                                    }
+
+                                </div>
+
+                                <button
+                                    className="flex items-center justify-between w-1/2 px-6 py-3 text-sm tracking-wide text-white capitalize transition-colors duration-300 transform  rounded-md sign-up focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50" >
+                                    <span>Verify Otp </span>
+
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 rtl:-scale-x-100" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd"
+                                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                            clipRule="evenodd" />
+                                    </svg>
+                                </button>
+                                <div className='w-full justify-center'>
+                                    {seconds > 0 || minutes > 0 ? (
+                                        <p className='text-danger'>
+                                            Time Remaining: {minutes < 10 ? `0${minutes}` : minutes}:
+                                            {seconds < 10 ? `0${seconds}` : seconds}
+                                        </p>
+                                    ) : (
+                                        <p className='text-primary' onClick={resendOtp} style={{ cursor: 'pointer' }}>Resend Otp</p>
+                                    )}
+                                </div>
+                            </form>
+                        }
+
+
+                        
 
                     </div>
                 </div>

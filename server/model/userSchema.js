@@ -22,6 +22,10 @@ const userSchema = new Schema({
     block:{
         type:Boolean,
         default:false
+    },
+    profilePic:{
+        type:String,
+        default:''
     }
 
 })

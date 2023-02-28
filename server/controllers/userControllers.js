@@ -1,21 +1,9 @@
-import userModel from "../model/userSchema.js"
-import bcrypt, { hash } from 'bcrypt'
-import otpGenerator from "../otpGenerator/otpGenerator.js"
-import sendMail from "../nodeMailer/nodeMailer.js"
-import { generateToken } from "../jwtAuth/generateJwt.js"
-import { response } from "express"
-import  jwt, { verify }  from "jsonwebtoken"
-import { resendingOtp, sendOtpHelper, SignUp, userSignIn, verifyUser } from "./helpers/userHelper.js"
-let otpVerify 
-
-
-
+import { forgotPass, resendingOtp, resettingPass, sendOtpHelper, SignUp, storeGuserDetails, userSignIn, verifyUser } from "./helpers/userHelper.js"
 
 
 export const sendOtp = async (req, res) => {
     let user = req.body
     sendOtpHelper(user).then((response)=>{
-        otpVerify = response.otp
         res.status(200).json(response)
     })
 }
@@ -49,11 +37,40 @@ export const userCheck =  (req,res)=>{
 
 }
 
-export const resendOtp = async(req,res)=>{
+export const resendOtp = (req,res)=>{
     let email = req.body.email
     console.log(email);
     resendingOtp(email).then((response)=>{
         res.status(200).json(response)
     })
     
+}
+
+export const forgotPassOtp = (req,res)=>{
+    let email = req.body.email
+    forgotPass(email).then((response)=>{
+        res.status(200).json(response)
+    }).catch((err)=>{
+        console.log(err)
+        res.status(404)
+    })
+}
+
+export const resetPass = (req,res)=>{
+    resettingPass(req.body).then((response)=>{
+        console.log(response);
+        res.status(200).json(response)
+    }).catch((err)=>{
+        console.log(err)
+        res.status(404)
+    })
+}
+
+export const saveGoogleUser = (req,res)=>{
+    storeGuserDetails(req.body).then((response)=>{
+        res.status(200).json(response)
+    }).catch((err)=>{
+        console.log(err)
+        res.status(404)
+    })   
 }
