@@ -12,7 +12,7 @@ router.get('/blockDoctor/:id',blockDoctor)
 router.get('/unBlockDoctor/:id',unBlockDoctor)
 router.get('/getNewDoctors',getNewDoctors)
 router.get('/approve/:id',approveDoctor)
-router.get('/reject/:id',rejectDoctor)
+router.post('/reject',rejectDoctor)
 router.post('/logIn',adminLogin)
 
 

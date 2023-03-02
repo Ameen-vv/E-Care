@@ -40,6 +40,12 @@ const doctorSchema = new Schema({
     block:{
         type:Boolean,
         default:false
+    },
+    licenseUrl:{
+        type:String
+    },
+    rejectReason:{
+        type:String
     }
 
 })

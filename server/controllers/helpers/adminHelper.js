@@ -78,10 +78,10 @@ export const approvingDoc = (id)=>{
     })
 }
 
-export const rejectingDoc = (id)=>{
+export const rejectingDoc = (id,reason)=>{
     let response = {}
     return new Promise((resolve,reject)=>{
-        doctorModel.findOneAndUpdate({_id:id},{$set:{verification:'rejected'}}).then((result)=>{
+        doctorModel.findOneAndUpdate({_id:id},{$set:{verification:'rejected',rejectReason:reason}}).then((result)=>{
             response.status = true
             result && resolve(response)
         })

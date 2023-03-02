@@ -2,7 +2,8 @@ import doctorModel from "../model/doctorSchema.js";
 import bcrypt from 'bcrypt'
 import {generateToken} from '../jwtAuth/generateJwt.js'
 import  jwt  from "jsonwebtoken"
-import { doctorOtp, signingUp } from "./helpers/doctorHelper.js";
+import { doctorOtp, doctorSignIn, rejectedDetail, resendingOtp, reSubmit, signingUp } from "./helpers/doctorHelper.js";
+import { response } from "express";
 
 
 export const sendOtp=  (req, res) => {
@@ -11,56 +12,29 @@ export const sendOtp=  (req, res) => {
     })
 }
 export const doctorSignUp = (req,res)=>{
-    signingUp(req.body.doctorData,req.body.otp).then((response)=>{
+    signingUp(req.body.doctorData,req.body.otp,req.body.imageData).then((response)=>{
         res.status(200).json(response)
     })
 }
-export const doctorSignIn =async (req, res) => {
-    try {
-        let response = {}
-        let {email,password} = req.body
-        let doctor =await doctorModel.findOne({ email:email })
-        if (doctor) {
-            response.user = true
-            if(!doctor.block){
-                response.block = false
-                bcrypt.compare(password,doctor.password,(err,result)=>{
-                        if(result){
-                            response.password = true
-                            if(doctor.verification === "success"){
-                                const token = generateToken({doctorId:doctor._id,doctorName:doctor.fullName,type:'doctor'})
-                                response.token = token  
-                                response.status = 'success'
-                                res.status(200).json(response)
 
-                            }else if(doctor.verification === "pending"){
-                                response.status = 'pending'
-                                res.status(200).json(response)
-                            }else{
-                                response.status = 'rejected'
-                                res.status(200).json(response)
-                            }
-                        }else{
-                            response.password = false
-                            res.status(200).json(response)
-                        }
-                })          
-            }else{
-                response.block = true
-                res.status(200).json(response)
-            }
-
-        } else {
-            response.user = false
-            res.status(200).json(response)
-        }
-    } catch (error) {
-        console.log(error);
-    }
+export const resendOtp = (req,res)=>{
+    resendingOtp(req.body.email).then((response)=>{
+        res.status(200).json(response)
+    })
+}
+export const SignIn =async (req, res) => {
+    doctorSignIn(req.body).then((response)=>{
+        res.status(200).json(response)
+    }).catch((err)=>{
+        console.log(err)
+        res.status(404)
+    })
 }
 
 export const doctorAuth = (req,res)=>{
-    let token = req.body.DoctorToken
+    let token = req.body.doctorToken
+    console.log(req.body.doctorToken);
+
     console.log(req.body);
     let response = {}
     if(token){
@@ -84,4 +58,16 @@ export const doctorAuth = (req,res)=>{
         res.status(200).json(response)
         console.log('error');
     }
+}
+
+export const rejectedUser = (req,res)=>{
+    rejectedDetail(req.params.id).then((response)=>{
+        res.status(200).json(response)
+    }).catch(()=>res.status(404))
+}
+
+export const resendApplication = (req,res)=>{
+    reSubmit(req.params.id).then((response)=>{
+        res.status(200).json(response)
+    }).catch(()=>res.status(404))
 }

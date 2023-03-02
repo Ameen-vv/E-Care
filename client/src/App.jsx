@@ -18,6 +18,9 @@ import DoctorRoutes from './pvtRoutes/DoctorRoutes'
 import AdminPanel from './pages/Admin/Home/Home'
 import AdminHome from './pages/Admin/Home/Home'
 import AdminLogin from './pages/Admin/LogIn/AdminLogin'
+import RejectedPage from './pages/Doctor/Rejected_Page/RejectedPage'
+
+
 function App() {
 
   return (
@@ -40,6 +43,7 @@ function App() {
         <Route path='/signIn' element={<SignIn/>}/>
         <Route path='/departments' element={<DepartmentPage/>}/>
         <Route path='/doctor/verification' element={<ProfileVerification/>}/>
+        <Route path='/doctor/rejected' element={<RejectedPage/>}/>
       </Routes>
     </Router>
   )

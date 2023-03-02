@@ -11,12 +11,15 @@ import { adminUrl } from '../../../../apiLinks/apiLinks';
 function Table() {
     const [userData,setUserData] = useState([])
     const [reload,setReload] = useState(false)
+    const [open, setOpen] = React.useState(false);
+
     useEffect(()=>{
         axios.get(`${adminUrl}getUsers`).then((response)=>{
             console.log(response.data);
             setUserData(response.data)
         })    
     },[reload])
+    
     const blockUser = (userId)=>{
         axios.get(`${adminUrl}blockUser/${userId}`).then((response)=>{
            reload ? setReload(false) : setReload(true)

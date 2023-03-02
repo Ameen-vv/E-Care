@@ -9,15 +9,14 @@ import doctorRouter from './routes/doctor.js'
 import cors from 'cors'
 import dotenv from 'dotenv'
 dotenv.config()
-
 const app = express()
 
+app.use(cookieParser())
 app.use(bodyParser.urlencoded({extended:true}))
 app.use(bodyParser.json())
 app.use(express.json({limit:"50mb"}))
 app.use(express.urlencoded({limit:"50mb",extended:true,parameterLimit:50000}))
 app.use(logger('dev'))
-app.use(cookieParser())
 connection()
 app.use(cors({
     origin:['http://localhost:4000'],
@@ -25,7 +24,8 @@ app.use(cors({
     credentials:true,
     allowedHeaders:[
         'Content-type',
-        'Access'
+        'Access',
+        'Authorization'
     ]
 })) 
 

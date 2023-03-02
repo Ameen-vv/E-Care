@@ -13,12 +13,11 @@ function SignInForm() {
     const [password, setPassword] = useState('')
     const [doctorEmail, setDoctorEmail] = useState('')
     const [doctorPass, setDoctorPass] = useState('')
-    const [incorrectPass, setIncorrectPass] = useState(false)
     const [userErr, setUserErr] = useState(false)
-    const [block, setBlock] = useState(false)
     const [reject, setReject] = useState(false)
     const [gErr, setGerr] = useState(false)
     const [otp, setOtp] = useState('')
+    const [loading,setLoading] = useState(false)
     useEffect(() => {
         const token = document.cookie
         axios.post(`${userUrl}authenticate`, token).then((response) => {
@@ -35,6 +34,7 @@ function SignInForm() {
     }
     const userSignIN = (e) => {
         e.preventDefault()
+        setLoading(true)
         axios.post(`${userUrl}signIn`, userData).then((response) => {
             if (response.data.status) {
                 if (response.data.token) {
@@ -45,59 +45,47 @@ function SignInForm() {
             } else {
                 setUserErr(true)
             }
+        }).finally(()=>{
+            setLoading(false)
         })
 
     }
     const doctorSignIn = (e) => {
         e.preventDefault()
+        setLoading(true)
         axios.post(`${doctorUrl}signIn`, doctorData).then((response) => {
-            if (response.data.user) {
-                setUserErr(false)
-                if (!response.data.block) {
-                    setBlock(false)
-                    if (response.data.password) {
-                        setIncorrectPass(false)
-                        if (response.data.status === 'success') {
-                            document.cookie = `DoctorToken=${response.data.token}`
-                            Navigate('/doctor/home')
-                        } else if (response.data.status === 'pending') {
-                            Navigate('/doctor/verification')
-                        } else {
-                            setReject(true)
-                        }
-
-                    } else {
-                        setIncorrectPass(true)
-                    }
-
-                } else {
-                    setBlock(true)
-                }
-            } else {
-                setUserErr(true)
+            if(response.data.status === 'success'){
+                document.cookie = `doctorToken=${response.data.token}`
+                Navigate('/doctor/home')
             }
-        })
+            response.data.status === 'pending' && Navigate('/doctor/verification')
+            response.data.status === 'rejected' && Navigate('/doctor/rejected',{state:{id:response.data.id}})
+            response.data.status === 'error' && setUserErr(true)
+        }).finally(()=>setLoading(false))
 
     }
     const forgotPass = (e) => {
         e.preventDefault()
+        setLoading(true)
         axios.post(`${userUrl}forgotPass`, { email }).then((response) => {
             if (response.data.status) {
                 setUserErr(false)
                 setSignInForm('reset-pass')
             } else { setUserErr(true) }
-        })
+        }).finally(()=>setLoading(false))
 
     }
     const resetPass = (e) => {
         e.preventDefault()
+        setLoading(true)
         axios.post(`${userUrl}resetPass`, { otp, email, password }).then((response) => {
             setUserErr(false)
             response.data.status ? setSignInForm('client') : setUserErr(true)
-        })
+        }).finally(()=>setLoading(true))
     }
     const googleLogin = () => {
         signInWithGoogle().then((result) => {
+            setLoading(true)
             axios.post(`${userUrl}googleUserDetails`, result.user).then((response) => {
                 if (response.data.status) {
                     document.cookie = `token=${response.data.token}`
@@ -105,12 +93,15 @@ function SignInForm() {
                 } else {
                     setGerr(true)
                 }
-            })
+            }).finally(()=>setLoading(false))
         })
     }
 
     return (
         <section className="bg-white dark:bg-gray-900">
+            {loading && <div className="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+                <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
+            </div> }
             <div className="flex justify-center min-h-screen">
                 <div className="hidden bg-cover lg:block lg:w-2/5" style={{ backgroundImage: "url('/images/Banner2.jpg')" }}>
                 </div>
@@ -205,10 +196,8 @@ function SignInForm() {
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-600 dark:text-gray-400">Email address</label>
                                     <input type="email" placeholder="doctor@example.com" onChange={(e) => setDoctorEmail(e.target.value)} className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md md:w-3/4 dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
-                                    {userErr &&
-                                        <p className='text-danger'>There is no user with this email</p>}
-                                    {block &&
-                                        <p className='text-danger'>You are blocked</p>}
+                                    
+                                    
                                     {reject &&
                                         <p className='text-danger'>Sorry, your profile is rejected</p>}
 
@@ -218,8 +207,6 @@ function SignInForm() {
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-600 dark:text-gray-400">Password</label>
                                     <input type="password" placeholder="Enter your password" onChange={(e) => setDoctorPass(e.target.value)} className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md md:w-3/4 dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
-                                    {incorrectPass &&
-                                        <p className="text-danger">Incorrect Password</p>}
                                 </div>
 
 
@@ -234,6 +221,8 @@ function SignInForm() {
                                             clipRule="evenodd" />
                                     </svg>
                                 </button>
+                                {userErr &&
+                                        <p className='text-danger mt-2'>Invalid email or password</p>}
                             </form>
                         }{
                             signInForm === 'forgot-pass' &&

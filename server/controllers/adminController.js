@@ -60,8 +60,9 @@ export const approveDoctor = (req,res)=>{
 }
 
 export const rejectDoctor = (req,res)=>{
-    let doctorId = req.params.id
-    rejectingDoc(doctorId).then((response)=>{
+    let doctorId = req.body.doctorId
+    let reason = req.body.reject
+    rejectingDoc(doctorId,reason).then((response)=>{
         response.status && res.status(200).json(response.status)
     })
 }

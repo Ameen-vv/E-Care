@@ -10,6 +10,7 @@ function SignUpForm() {
     const [signUpForm, setSignUpForm] = useState('client')
     const [fullName, setFullName] = useState('')
     const [phone, setPhone] = useState('')
+    const [image,setImage] = useState('')
     const [email, setEmail] = useState('')
     const [dateOfBirth, setDateOfBirth] = useState()
     const [password, setPassword] = useState('')
@@ -31,8 +32,10 @@ function SignUpForm() {
     const [otpErr, setOtpErr] = useState(false)
     const [minutes, setMinutes] = useState(0);
     const [seconds, setSeconds] = useState(30);
+    const [loading,setLoading] = useState(false)
+    const [serverErr,setServerErr] = useState(false)
     useEffect(() => {
-        if (signUpForm === 'otp') {
+        if (signUpForm === 'otp' || signUpForm === 'doctor-otp') {
             const interval = setInterval(() => {
                 if (seconds > 0) {
                     setSeconds(seconds - 1);
@@ -55,7 +58,7 @@ function SignUpForm() {
 
 
 
-    }, [seconds,signUpForm])
+    }, [seconds, signUpForm])
 
     const userData = {
         fullName,
@@ -81,8 +84,9 @@ function SignUpForm() {
         e.preventDefault()
         if (password === confirmPass) {
             setConfirmPassErr(false)
+            setLoading(true)
             axios.post(`${userUrl}getOtp`, userData).then((response) => {
-                console.log(response.data.status);
+                setLoading(false)
                 if (response.data.status) {
                     setUserExist(false)
                     setSignUpForm('otp')
@@ -94,10 +98,12 @@ function SignUpForm() {
             setConfirmPassErr(true)
         }
     }
-    
+
     const verifyOtpAndSignUp = (e) => {
         e.preventDefault()
+        setLoading(true)
         axios.post(`${userUrl}signUp`, { userData, otp }).then((response) => {
+            setLoading(false)
             response.data.status ? Navigate('/signIn') : setOtpErr(true)
         })
     }
@@ -111,17 +117,34 @@ function SignUpForm() {
             }
         })
     }
-    const doctorSignUp = (e) => {
+    const doctorSignUp = async(e) => {
         e.preventDefault()
-        axios.post(`${doctorUrl}signUp`,{doctorData,otp}).then((response)=>{
-            response.data.status ? Navigate('/signIn') : setOtpErr(true)
-        })
+        setLoading(true)
+        let imageData
+        const reader = new FileReader()
+        reader.readAsDataURL(image)
+        reader.onloadend = () => {
+            imageData = reader.result
+            console.log(imageData);
+            axios.post(`${doctorUrl}signUp`, { doctorData, otp,imageData}).then((response) => {
+              if(response.status === 200) { 
+                setLoading(false)
+                response.data.status ? Navigate('/signIn') : setOtpErr(true)
+            }else{
+                setServerErr(true)
+            }
+            })
+            
+        }
+        
 
     }
-    const doctorOtp = (e)=>{
+    const doctorOtp = (e) => {
         e.preventDefault()
-        if(doctorConfirmPass===doctorPassword){
-            axios.post(`${doctorUrl}getOtp`, {doctorEmail}).then((response) => {
+        if (doctorConfirmPass === doctorPassword) {
+            setLoading(true)
+            axios.post(`${doctorUrl}getOtp`, { doctorEmail }).then((response) => {
+                setLoading(false)
                 if (response.data.status) {
                     setDoctorExist(false)
                     setSignUpForm('doctor-otp')
@@ -129,15 +152,27 @@ function SignUpForm() {
                     setDoctorExist(true)
                 }
             })
-           }else{
-                setConfirmPassErr(true)
-           }
-    } 
+        } else {
+            setConfirmPassErr(true)
+        }
+    }
+    const resendOtpForDr = () => {
+        setMinutes(0)
+        setSeconds(30)
+        console.log(email);
+        axios.post(`${doctorUrl}resendOtp`, { doctorEmail }).then((response) => {
+            if (response.data.status) {
+                console.log('otpSent');
+            }
+        })
+    }
 
 
     return (
         <section className="bg-white dark:bg-gray-900">
-            <div className="flex justify-center min-h-screen">
+            {loading && <div className="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+                <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
+            </div> } <div className="flex justify-center min-h-screen">
                 <div className="hidden bg-cover lg:block lg:w-2/5" style={{ backgroundImage: "url('/images/Banner.jpg')" }}>
                 </div>
 
@@ -151,7 +186,7 @@ function SignUpForm() {
                             Let’s get you all set up so you can verify your personal account and begin setting up your profile.
                         </p>
 
-                        <div className={`mt-6 ${signUpForm === 'otp' && 'hide-acount-type'}`}>
+                        <div className={`mt-6 ${signUpForm === 'otp' && 'hide-acount-type'} ${signUpForm === 'doctor-otp' && 'hidden'}`}>
                             <h1 className="text-gray-500 dark:text-gray-300">Select type of account</h1>
 
                             <div className="mt-3 md:flex md:items-center md:-mx-2">
@@ -255,7 +290,7 @@ function SignUpForm() {
                                 </div>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400">Department</label>
-                                    <select  onChange={(e) => setDoctorDepartment(e.target.value)} required className="block w-full px-5 py-3 mt-2 text-black-800 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40">
+                                    <select onChange={(e) => setDoctorDepartment(e.target.value)} required className="block w-full px-5 py-3 mt-2 text-black-800 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40">
                                         <option value="">Select department</option>
                                         <option value="Cardiology">Cardiology</option>
                                         <option value="Dermatology">Dermatology</option>
@@ -278,10 +313,10 @@ function SignUpForm() {
                                     <label className="block mb-2 text-sm text-gray-400">Hospital</label>
                                     <input type="text" placeholder="MBBS,MD, etc" onChange={(e) => setDoctorHospital(e.target.value)} className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
                                 </div>
-                                {/* <div>
+                                <div>
                                     <label className="block mb-2 text-sm text-gray-400">Upload Certificates</label>
-                                    <input type="file" placeholder="MBBS,MD, etc" className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
-                                </div> */}
+                                    <input type="file" onChange={(e)=>setImage(e.target.files[0])} placeholder="MBBS,MD, etc" className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                </div>
 
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400 ">Password</label>
@@ -297,7 +332,7 @@ function SignUpForm() {
                                 </div>
 
                                 <button
-                                    className="flex items-center justify-between w-full px-6 py-3 text-sm tracking-wide text-white capitalize transition-colors duration-300 transform  rounded-md sign-up focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50" >
+                                    className="flex items-center justify-between w-full px-6 py-3 h-3/4 mt-4 text-sm tracking-wide text-white capitalize transition-colors duration-300 transform  rounded-md sign-up focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50" >
                                     <span>Sign Up </span>
 
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 rtl:-scale-x-100" viewBox="0 0 20 20" fill="currentColor">
@@ -342,7 +377,7 @@ function SignUpForm() {
                                 </div>
                             </form>
                         }
-                         {
+                        {
                             signUpForm === 'doctor-otp' && <form className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-1" onSubmit={doctorSignUp}>
 
                                 <div>
@@ -371,14 +406,14 @@ function SignUpForm() {
                                             {seconds < 10 ? `0${seconds}` : seconds}
                                         </p>
                                     ) : (
-                                        <p className='text-primary' onClick={resendOtp} style={{ cursor: 'pointer' }}>Resend Otp</p>
+                                        <p className='text-primary' onClick={resendOtpForDr} style={{ cursor: 'pointer' }}>Resend Otp</p>
                                     )}
                                 </div>
                             </form>
                         }
 
 
-                        
+                        {serverErr && <p className='mt-2 text-danger'>some unexpected error please try again after some time</p>}
 
                     </div>
                 </div>
