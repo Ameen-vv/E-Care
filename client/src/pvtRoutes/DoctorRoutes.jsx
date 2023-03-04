@@ -9,14 +9,13 @@ const DoctorRoutes = () => {
     const [doctorCheck, setDoctorCheck] = useState(false)
     useEffect(() => {
         console.log('adsg');
-        const token = document.cookie
-        axios.post(`${doctorUrl}authenticate`, token).then((response) => {
+        const token = localStorage.getItem('doctorToken')
+        const headers = {Authorization:token}
+        axios.get(`${doctorUrl}authenticate`, {headers}).then((response) => {
             if (!response.data.user) {
-                console.log('fadfsa');
                 setDoctorCheck(false)
                 Navigate('/signIn')
             } else {
-                console.log('sdas');
                 setDoctorCheck(true)
             }
         })

@@ -17,7 +17,7 @@
     "@headlessui/react": "^1.7.10",
     "@heroicons/react": "^1.0.6",
     "@mui/icons-material": "^5.11.9",
-    "@mui/material": "^5.11.10",
+    "@mui/material": "^5.11.11",
     "@mui/x-data-grid": "^5.17.24",
     "@reduxjs/toolkit": "^1.9.3",
     "accounting-js": "^1.1.1",

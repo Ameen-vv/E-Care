@@ -11,11 +11,10 @@ import { adminUrl } from '../../../../apiLinks/apiLinks';
 function Table() {
     const [userData,setUserData] = useState([])
     const [reload,setReload] = useState(false)
-    const [open, setOpen] = React.useState(false);
 
     useEffect(()=>{
         axios.get(`${adminUrl}getUsers`).then((response)=>{
-            console.log(response.data);
+            console.log(response.data)
             setUserData(response.data)
         })    
     },[reload])
@@ -46,7 +45,6 @@ function Table() {
             headerName: 'Action',
             width: 200,
             renderCell: (params) => {
-                console.log(params.row.block);
                 return (
                     params.row.block ? <div className='tableAction'>
                         <button onClick={()=>{unBlockUser(params.row._id)}} className='btn-success btn'>unBlock</button>
@@ -61,7 +59,7 @@ function Table() {
     ];
 
     return (
-        <div className='dataTable'>
+        <div className='dataTable w-100'>
             <DataGrid
                 getRowId={(row) => row._id}
                 rows={userData}

@@ -32,10 +32,7 @@ export const SignIn =async (req, res) => {
 }
 
 export const doctorAuth = (req,res)=>{
-    let token = req.body.doctorToken
-    console.log(req.body.doctorToken);
-
-    console.log(req.body);
+    let token = req.headers.authorization
     let response = {}
     if(token){
         jwt.verify(token,process.env.TOKEN_SECRET,async(err,result)=>{

@@ -7,7 +7,7 @@ router.post('/getOtp',sendOtp)
 router.post('/signUp',doctorSignUp)
 router.post('/signIn',SignIn)
 router.post('/resendOtp',resendOtp)
-router.post('/authenticate',doctorAuth)
+router.get('/authenticate',doctorAuth)
 router.get('/rejectedUser/:id',rejectedUser)
 router.get('/resendForm/:id',resendApplication)
 

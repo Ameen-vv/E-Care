@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useContext } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 import { adminUrl } from '../../../../apiLinks/apiLinks';
@@ -10,27 +10,32 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import CardMedia from "@mui/material/CardMedia";
 import { adminLoading } from '../../../pages/Admin/Home/Home';
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
 
 
 function NewDoctors() {
     const [doctorData, setDoctorData] = useState([])
     const [reload, setReload] = useState(false)
     const [open, setOpen] = React.useState(false)
-    const [reject,setReject] = useState('')
-    const {adminLoad,changeLoading} = useContext(adminLoading)
-    let pageNumber = Math.ceil(doctorData.length/10)
+    const [reject, setReject] = useState('')
+    const {  changeLoading } = useContext(adminLoading)
     useEffect(() => {
         changeLoading(true)
         axios.get(`${adminUrl}getNewDoctors`).then((response) => {
             setDoctorData(response.data)
-        }).finally(()=>changeLoading(false))
+        }).finally(() => changeLoading(false))
     }, [reload])
     const approveDoctor = (doctorId) => {
         changeLoading(true)
         axios.get(`${adminUrl}approve/${doctorId}`).then((response) => {
             response.data && reload ? setReload(false) : setReload(true)
-        }).finally(()=>changeLoading(false))
+        }).finally(() => changeLoading(false))
     }
     const handleClickOpen = () => {
         setOpen(true);
@@ -41,13 +46,24 @@ function NewDoctors() {
     const rejectDoctor = (doctorId) => {
         setOpen(false)
         changeLoading(true)
-        axios.post(`${adminUrl}reject`,{doctorId,reject}).then((response) => {
+        axios.post(`${adminUrl}reject`, { doctorId, reject }).then((response) => {
             response.data && reload ? setReload(false) : setReload(true)
-        }).finally(()=>changeLoading(false))
+        }).finally(() => changeLoading(false))
     }
 
     const columns = [
-        { field: '_id', headerName: 'ID', width: 200 },
+        {
+            field: 'index',
+            headerName: '#',
+            width: 100,
+            renderCell: (params) => {
+                const rowId = params.row._id;
+                const rowIndex = doctorData.findIndex((row) => row._id === rowId);
+                return (
+                    <div>{rowIndex + 1}</div>
+                );
+            },
+        },
         { field: 'fullName', headerName: 'Full name', width: 200 },
         { field: 'email', headerName: 'email', width: 200 },
         ,
@@ -61,7 +77,7 @@ function NewDoctors() {
             field: 'qualification',
             headerName: 'qualification',
             sortable: false,
-            width: 150,
+            width: 100,
         },
         {
             field: 'department',
@@ -70,25 +86,62 @@ function NewDoctors() {
             width: 150,
         },
         {
+            field: 'licenseUrl',
+            headerName: 'License',
+            sortable: false,
+            width: 120,
+            renderCell: (params) => {
+                const [selectedRow, setSelectedRow] = useState(null);
+
+                const handleOpen = () => {
+                    setSelectedRow(params._id);
+                };
+
+                const handleClose = () => {
+                    setSelectedRow(null);
+                };
+
+                return (
+                    <Box>
+                        <Button variant="contained" onClick={handleOpen} style={{ textTransform: 'none' }}>
+                            View
+                        </Button>
+                        <Modal open={selectedRow === params._id}>
+                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh" }}>
+                                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", maxWidth: 800 }}>
+                                    <Card sx={{ width: "100%" }}>
+                                        <CardMedia component="img" src={params.value} alt="Certificate" />
+                                    </Card>
+                                </Box>
+                                <IconButton sx={{ position: "absolute", top: 0, right: 0 }} onClick={handleClose}>
+                                    <CloseIcon />
+                                </IconButton>
+                            </Box>
+                        </Modal>
+                    </Box>
+                );
+            }
+
+        },
+        {
             field: 'block',
             headerName: 'Action',
             width: 200,
             renderCell: (params) => {
-                console.log(params.row.block);
-                console.log(reject);
+                
                 return (
-                    
+
                     <div className='tableAction'>
                         <button onClick={() => { approveDoctor(params.row._id) }} className='btn-success btn me-2'>Approve</button>
 
                         <Button variant="contained" color='error' onClick={handleClickOpen} style={{ textTransform: 'none' }}>
                             Reject
                         </Button>
-                        <Dialog open={open} onClose={handleClose} 
+                        <Dialog open={open} onClose={handleClose}
                             BackdropProps={{
                                 style: {
                                     backgroundColor: 'black',
-                                    opacity:0.2
+                                    opacity: 0.2
                                 },
                             }}>
                             <DialogTitle>Subscribe</DialogTitle>
@@ -107,11 +160,11 @@ function NewDoctors() {
                                     variant="outlined"
                                     InputProps={{
                                         style: {
-                                          outline: "none"
+                                            outline: "none"
                                         }
-                                      }}
-                                    onChange={(e)=>setReject(e.target.value)}  
-                                  
+                                    }}
+                                    onChange={(e) => setReject(e.target.value)}
+
                                 />
                             </DialogContent>
                             <DialogActions>
@@ -121,7 +174,7 @@ function NewDoctors() {
                         </Dialog>
 
                     </div>
-                    
+
                 )
             }
 
@@ -129,7 +182,7 @@ function NewDoctors() {
         }
     ];
     return (
-        <div className='dataTable'>
+        <div className='dataTable w-100'>
             <DataGrid
                 getRowId={(row) => row._id}
                 rows={doctorData}

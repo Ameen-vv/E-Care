@@ -1,4 +1,5 @@
 import React from 'react'
+import PersistentDrawerLeft from '../../../components/AdminComponents/newNav'
 import Banner from '../../../components/Banner/Banner'
 import Departments from '../../../components/Departments/Departments'
 import Footer from '../../../components/Footer/Footer'

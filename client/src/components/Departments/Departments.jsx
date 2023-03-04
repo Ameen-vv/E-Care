@@ -12,10 +12,8 @@ function Departments() {
     const Navigate = useNavigate()
 
     const handleDepartmentClick = (department) => {
-        console.log(department);
         setSelectedDepartment(department);
     };
-    console.log(selectedDepartment);
 
     return (
         <section className='departmentSection mt-5 '>

@@ -52,7 +52,6 @@ function DoctorList() {
             headerName: 'Action',
             width: 200,
             renderCell: (params) => {
-                console.log(params.row.block);
                 return (
                     params.row.block ? <div className='tableAction'>
                         <button onClick={() => { unBlockDoctor(params.row._id) }} className='btn-success btn'>unBlock</button>
@@ -67,7 +66,7 @@ function DoctorList() {
     ];
 
     return (
-        <div className='dataTable'>
+        <div className='dataTable w-100 '>
             <DataGrid
                 getRowId={(row) => row._id}
                 rows={doctorData}

@@ -7,11 +7,11 @@ const PrivateRoutes = () => {
   const Navigate = useNavigate()
   const [userCheck, setUserCheck] = useState(false)
   useEffect(() => {
-    const token = document.cookie
-    axios.post(`${userUrl}authenticate`, token).then((response) => {
+    const token = localStorage.getItem('userToken')
+    const headers = {Authorization:token}
+    axios.get(`${userUrl}authenticate`, {headers}).then((response) => {
       if (!response.data.user) {
         setUserCheck(false)
-        console.log('checl');
         Navigate('/signIn')
       }else{
         console.log('success');

@@ -44,7 +44,7 @@ function Banner() {
   
   return (
     <div className="hero" style={{backgroundImage:`url(${slides[slideIndex].image})`}} >
-      <div className="hero-text-container">
+      <div className="hero-text-container ">
         <h1 className="hero-title">{slides[slideIndex].title}</h1>
         <p className="hero-subtitle">{slides[slideIndex].subtitle}</p>
         <button className="hero-button prev-button" onClick={goToPrevSlide}>

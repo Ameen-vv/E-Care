@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import './SignInForm.css'
 import axios from 'axios'
 import { userUrl, doctorUrl } from '../../../apiLinks/apiLinks'
-import { firebaseContext } from '../../store/Contexts'
+import { firebaseContext, userContext } from '../../store/Contexts'
 
 function SignInForm() {
     const [signInForm, setSignInForm] = useState('client')
     const Navigate = useNavigate()
+    const {user,SetUser} = useContext(userContext)
     const { signInWithGoogle } = useContext(firebaseContext)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -19,7 +20,7 @@ function SignInForm() {
     const [otp, setOtp] = useState('')
     const [loading,setLoading] = useState(false)
     useEffect(() => {
-        const token = document.cookie
+        const token = localStorage.getItem('userToken')
         axios.post(`${userUrl}authenticate`, token).then((response) => {
             response.data.user ? Navigate('/') : Navigate('/SignIn')
         })
@@ -38,8 +39,9 @@ function SignInForm() {
         axios.post(`${userUrl}signIn`, userData).then((response) => {
             if (response.data.status) {
                 if (response.data.token) {
-                    document.cookie = `token=${response.data.token}`
+                    localStorage.setItem('userToken',response.data.token)
                 }
+                SetUser('user')
                 setUserErr(false)
                 Navigate('/')
             } else {
@@ -55,7 +57,8 @@ function SignInForm() {
         setLoading(true)
         axios.post(`${doctorUrl}signIn`, doctorData).then((response) => {
             if(response.data.status === 'success'){
-                document.cookie = `doctorToken=${response.data.token}`
+                localStorage.setItem('doctorToken',response.data.token)
+                SetUser('doctor')
                 Navigate('/doctor/home')
             }
             response.data.status === 'pending' && Navigate('/doctor/verification')
