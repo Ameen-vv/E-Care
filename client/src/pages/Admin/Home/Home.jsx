@@ -22,6 +22,8 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
+import AddDepartment from '../../../components/AdminComponents/AddDepartment/AddDepartment'
+import Departments from '../../../components/AdminComponents/departmentTable/Departments'
 
 const drawerWidth = 240;
 
@@ -82,6 +84,14 @@ const option = [
   {
     page:'New Doctors',
     path:'newDoctors'
+  },
+  {
+    page:'Departments',
+    path:'departments'
+  },
+  {
+    page:'Add Department',
+    path:'addDepartment'
   }
 ]
 
@@ -111,10 +121,11 @@ function AdminHome() {
   return (
     <adminLoading.Provider value={{adminLoad,changeLoading}}>
     <sideBarContext.Provider value={{path,changePath}}>
-    <div className='admin-home'>
-        {adminLoad && <div className="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+    <>  
+    {adminLoad && <div className="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
                 <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
         </div> }
+    <div className='admin-home'>
         <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar position="fixed" open={open} style={{justifyContent:'center',alignItems:'start',backgroundColor:'#ffff'}}>
@@ -165,7 +176,7 @@ function AdminHome() {
           ))}
         </List>
         <Divider />
-        <List>
+        {/* <List>
           {['All mail', 'Trash', 'Spam'].map((text, index) => (
             <ListItem key={text} disablePadding>
               <ListItemButton>
@@ -176,22 +187,25 @@ function AdminHome() {
               </ListItemButton>
             </ListItem>
           ))}
-        </List>
+        </List> */}
       </Drawer>
       <Main  open={open}>
       <DrawerHeader />
-      <h1>sadhbsb</h1>
+      <h1>{path}</h1>
       <div className='home-container'>
         
         {path === 'users' && <Table/>}
         {path === 'doctors' && <DoctorList/>}
         {path === 'newDoctors' && <NewDoctors/>}
+        {path === 'addDepartment' && <AddDepartment/>}
+        {path === 'departments' && <Departments/>}
       </div>        
       </Main>
     </Box>
       
         
     </div>
+    </>
     </sideBarContext.Provider>
     </adminLoading.Provider>
   )

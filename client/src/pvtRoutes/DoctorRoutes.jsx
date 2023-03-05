@@ -8,7 +8,6 @@ const DoctorRoutes = () => {
     const Navigate = useNavigate()
     const [doctorCheck, setDoctorCheck] = useState(false)
     useEffect(() => {
-        console.log('adsg');
         const token = localStorage.getItem('doctorToken')
         const headers = {Authorization:token}
         axios.get(`${doctorUrl}authenticate`, {headers}).then((response) => {

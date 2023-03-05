@@ -22,7 +22,7 @@ import CloseIcon from "@mui/icons-material/Close";
 function NewDoctors() {
     const [doctorData, setDoctorData] = useState([])
     const [reload, setReload] = useState(false)
-    const [open, setOpen] = React.useState(false)
+    const [open, setOpen] = useState(false)
     const [reject, setReject] = useState('')
     const {  changeLoading } = useContext(adminLoading)
     useEffect(() => {

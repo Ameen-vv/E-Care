@@ -1,5 +1,18 @@
 import express from 'express'
-import { adminLogin, approveDoctor, blockDoctor, blockUser, getDoctor, getNewDoctors, getUsers , rejectDoctor, unBlockDoctor, unBlockUser} from '../controllers/adminController.js'
+import { addDepartment,
+         adminLogin, 
+         approveDoctor,
+         blockDoctor, 
+         blockUser, 
+         getDepartments, 
+         getDoctor, 
+         getNewDoctors, 
+         getUsers , 
+         listDepartment, 
+         rejectDoctor, 
+         unBlockDoctor, 
+         unBlockUser, 
+         unlistDepartment} from '../controllers/adminController.js'
 const router = express.Router()
 
 
@@ -14,6 +27,10 @@ router.get('/getNewDoctors',getNewDoctors)
 router.get('/approve/:id',approveDoctor)
 router.post('/reject',rejectDoctor)
 router.post('/logIn',adminLogin)
+router.post('/addDepartment',addDepartment)
+router.get('/departments',getDepartments)
+router.get('/unListDepartment/:id',unlistDepartment)
+router.get('/listDepartment/:id',listDepartment)
 
 
 export default router

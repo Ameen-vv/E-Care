@@ -2,6 +2,9 @@ import userModel from "../../model/userSchema.js";
 import doctorModel from "../../model/doctorSchema.js";
 import adminModel from "../../model/adminSchema.js";
 import { generateToken } from "../../jwtAuth/generateJwt.js";
+import departmentModel from "../../model/departmentModel.js";
+import cloudinary from "../../utils/cloudinary.js";
+import { response } from "express";
 
 export const userDetails = ()=>{
     return new Promise(async(resolve,reject)=>{
@@ -108,4 +111,66 @@ export const adminLogging = ({email,password})=>{
             }
         })
     })
+}
+
+export const addingDepartment = (data,image)=>{
+    let response = {}
+    return new Promise(async(resolve,reject)=>{
+        let departmentName =await titleCase(data.department)
+        console.log(departmentName);
+        departmentModel.findOne({name:departmentName}).then((department)=>{
+            if(department){
+                response.status = 'exist'
+                resolve(response)
+            }else{
+                cloudinary.uploader.upload(image,{upload_preset:'Ecare'}).then(async(res)=>{
+                    console.log('image upl');
+                    let diseases =await data.diseases.split(',')
+                    console.log(diseases);
+                    let newDepartment = new departmentModel({
+                        name:departmentName,
+                        commonDiseases:diseases,
+                        imageUrl:res.secure_url
+                    })
+                    newDepartment.save().then(()=>{
+                        response.status = 'success'
+                        resolve(response)
+                })
+                }).catch((err)=>reject(err))
+            }
+        }).catch((err)=>reject(err))
+    })
+}
+
+function titleCase(str) {
+    str = str.toLowerCase().split(' ');
+    for (var i = 0; i < str.length; i++) {
+        str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1);
+    }
+    return str.join(' ');
+}
+
+export const departmentDetails=()=>{
+    return new Promise((resolve,reject)=>{
+        departmentModel.find().then((deparments)=>{
+            resolve(deparments)
+        }).catch((err)=>reject(err))
+    })
+}
+
+
+export const unListingDepartment = (id)=>{
+    return new Promise((resolve,reject)=>{
+        departmentModel.findOneAndUpdate({_id:id},{$set:{list:false}}).then((response)=>{
+            resolve()
+        }).catch((err)=>reject(err))       
+    })
+}
+
+export const listingDepartment = (id)=>{
+    return new Promise((resolve,reject)=>{
+        departmentModel.findOneAndUpdate({_id:id},{$set:{list:true}}).then((response)=>{
+            resolve()
+        }).catch((err)=>reject(err))       
+    })   
 }

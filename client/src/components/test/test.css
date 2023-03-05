@@ -1,0 +1,169 @@
+.card-slider-container {
+    margin: 0 auto;
+    max-width: 1200px;
+  }
+  
+  .card-slider-container .card {
+    margin: 0 10px;
+    max-width: 300px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .card-slider-container .card img {
+    height: 200px;
+    object-fit: cover;
+    border-radius: 5px 5px 0 0;
+  }
+  
+  .card-slider-container .card-body {
+    padding: 10px;
+  }
+  
+  .card-slider-container .card-title {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 0;
+  }
+  
+  .card-slider-container .card-text {
+    font-size: 14px;
+    margin: 10px 0;
+  }
+  
+  .slick-slider {
+    position: relative;
+  }
+  
+  .slick-slider .slick-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+    display: none;
+  }
+  
+  .slick-slider .slick-arrow.slick-prev {
+    left: 10px;
+  }
+  
+  .slick-slider .slick-arrow.slick-next {
+    right: 10px;
+  }
+  
+  .slick-slider:hover .slick-arrow {
+    display: block;
+  }
+  
+  .slick-slider .slick-dots {
+   
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+    }
+    
+    .slick-slider .slick-dots li {
+    margin: 0 5px;
+    }
+    
+    .slick-slider .slick-dots button {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #ccc;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+    }
+    
+    .slick-slider .slick-dots button:hover,
+    .slick-slider .slick-dots button:focus {
+    background-color: #555;
+    }
+    
+    .slick-slider .slick-dots button.slick-active {
+    background-color: #555;
+    }
+    .card-slider {
+        position: relative;
+        margin-bottom:30px;
+        
+    }
+    
+    .card {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        margin: 0 10px 0 0; /* add margin-right property */
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .card-image {
+    width: 100%;
+    height: 200px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    border-radius: 10px;
+    }
+    
+    .card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    }
+    
+    .card-body {
+    text-align: center;
+    }
+    
+    .department-name {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #444;
+    }
+    
+    .disease-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0 0;
+    }
+    
+    .disease-list li {
+    margin: 5px 0;
+    font-size: 1.1rem;
+    color: #666;
+    }
+    
+    .show-all-button {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #fff;
+    background-color: #00bcd4;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    }
+    
+    .show-all-button:hover {
+    background-color: #008ba3;
+    }      
+      

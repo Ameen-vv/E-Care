@@ -1,5 +1,5 @@
 import { response } from "express";
-import { blockingUser, userDetails , unBlockingUser, gettingDoctors, blockingDoctor, unBlockingDoctor, gettingNewDoctors, approvingDoc, rejectingDoc, adminLogging} from "./helpers/adminHelper.js"
+import { blockingUser, userDetails , unBlockingUser, gettingDoctors, blockingDoctor, unBlockingDoctor, gettingNewDoctors, approvingDoc, rejectingDoc, adminLogging, addingDepartment, departmentDetails, unListingDepartment, listingDepartment} from "./helpers/adminHelper.js"
 
 
 
@@ -71,4 +71,29 @@ export const adminLogin = (req,res)=>{
     adminLogging(req.body).then((response)=>{
         res.status(200).json(response)
     })
+}
+
+export const addDepartment = (req,res)=>{
+    console.log('success');
+    addingDepartment(req.body.departmentData,req.body.imageData).then((response)=>{
+        res.status(200).json(response)
+    }).catch((err)=>res.status(500))
+}
+
+export const getDepartments = (req,res)=>{
+    departmentDetails().then((response)=>{
+        res.status(200).json(response)
+    }).catch((err)=>res.status(500))
+}
+
+export const unlistDepartment = (req,res)=>{
+    unListingDepartment(req.params.id).then(()=>{
+        res.status(200).json({status:true})
+    }).catch((err)=>res.status(500))
+}
+
+export const listDepartment = (req,res)=>{
+    listingDepartment(req.params.id).then(()=>{
+        res.status(200).json({status:true})
+    }).catch(()=>res.status(500))
 }

@@ -79,7 +79,7 @@ function DepartmentSection()  {
             <div className='w-full mt-3 mb-3 '><h3 className='department-name'>{selectedDepartment.name}</h3></div>
       
       :departments.map((department) => (
-        <div key={department.name} className="p-4 w-full md:w-1/3 lg:w-1/4 department-card">
+        <div key={department.name} className="p-4 w-full md:w-1/3 lg:w-1/3 department-card">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden" onClick={() => setSelectedDepartment(department)}>
             <img src={department.image} alt={department.name} className="w-full h-48 object-cover" />
             <div className="p-4">

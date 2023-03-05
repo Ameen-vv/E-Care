@@ -52,7 +52,7 @@ function DoctorList() {
             headerName: 'Action',
             width: 200,
             renderCell: (params) => {
-                return (
+                    return (
                     params.row.block ? <div className='tableAction'>
                         <button onClick={() => { unBlockDoctor(params.row._id) }} className='btn-success btn'>unBlock</button>
                     </div> : <div className='tableAction'>
