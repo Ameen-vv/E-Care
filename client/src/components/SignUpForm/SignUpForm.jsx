@@ -3,6 +3,7 @@ import './SignUpForm.css'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { userUrl, doctorUrl } from '../../../apiLinks/apiLinks'
+import { toast, Toaster } from 'react-hot-toast'
 
 
 function SignUpForm() {
@@ -34,6 +35,7 @@ function SignUpForm() {
     const [seconds, setSeconds] = useState(30);
     const [loading,setLoading] = useState(false)
     const [serverErr,setServerErr] = useState(false)
+    const [departmentDetails,setDepartmentDetails] = useState([])
     useEffect(() => {
         if (signUpForm === 'otp' || signUpForm === 'doctor-otp') {
             const interval = setInterval(() => {
@@ -55,10 +57,21 @@ function SignUpForm() {
                 clearInterval(interval);
             };
         }
+    
 
 
 
     }, [seconds, signUpForm])
+
+    useEffect(()=>{
+        console.log('gvhasd')
+       if(signUpForm === 'doctor'){
+        setLoading(true)
+        axios.get(`${doctorUrl}getDepartments`).then((response)=>{
+            response.status === 200 ? setDepartmentDetails(response.data) : toast.error('some unexpected errors please try after some time')
+        }).finally(()=>setLoading(false)).catch((err)=>console.log(err))
+       }
+    },[signUpForm])
 
     const userData = {
         fullName,
@@ -170,6 +183,7 @@ function SignUpForm() {
 
     return (
         <section className="bg-white dark:bg-gray-900">
+            <Toaster/>
             {loading && <div className="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
                 <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
             </div> } <div className="flex justify-center min-h-screen">
@@ -292,16 +306,11 @@ function SignUpForm() {
                                     <label className="block mb-2 text-sm text-gray-400">Department</label>
                                     <select onChange={(e) => setDoctorDepartment(e.target.value)} required className="block w-full px-5 py-3 mt-2 text-black-800 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40">
                                         <option value="">Select department</option>
-                                        <option value="Cardiology">Cardiology</option>
-                                        <option value="Dermatology">Dermatology</option>
-                                        <option value="Endocrinology">Endocrinology</option>
-                                        <option value="Gastroenterology">Gastroenterology</option>
-                                        <option value="Hematology">Hematology</option>
-                                        <option value="Neurology">Neurology</option>
-                                        <option value="Oncology">Oncology</option>
-                                        <option value="Pediatrics">Pediatrics</option>
-                                        <option value="Psychiatry">Psychiatry</option>
-                                        <option value="Surgery">Surgery</option>
+                                        {
+                                            departmentDetails.map((department)=>{
+                                              return  <option value={department._id} key={department._id}>{department.name}</option>
+                                            })
+                                        }
                                     </select>
                                 </div>
 

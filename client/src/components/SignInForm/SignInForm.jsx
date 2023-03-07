@@ -19,9 +19,10 @@ function SignInForm() {
     const [gErr, setGerr] = useState(false)
     const [otp, setOtp] = useState('')
     const [loading,setLoading] = useState(false)
-    useEffect(() => {
-        const token = localStorage.getItem('userToken')
-        axios.post(`${userUrl}authenticate`, token).then((response) => {
+    const token = localStorage.getItem('doctorToken')
+    const headers = {Authorization:token}
+    useEffect(() => {    
+        axios.get(`${userUrl}authenticate`, {headers}).then((response) => {
             response.data.user ? Navigate('/') : Navigate('/SignIn')
         })
     }, [])

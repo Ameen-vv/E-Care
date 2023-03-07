@@ -28,7 +28,6 @@ export const signIn =  (req, res) => {
 
 export const userCheck =  (req,res)=>{
     let token =  req.headers.authorization
-    console.log(token)
     !token ? res.status(200).json({user:false}):
     verifyUser(token).then((response)=>{
         res.status(200).json(response)

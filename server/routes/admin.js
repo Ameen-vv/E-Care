@@ -1,5 +1,6 @@
 import express from 'express'
 import { addDepartment,
+         adminCheck,
          adminLogin, 
          approveDoctor,
          blockDoctor, 
@@ -31,6 +32,7 @@ router.post('/addDepartment',addDepartment)
 router.get('/departments',getDepartments)
 router.get('/unListDepartment/:id',unlistDepartment)
 router.get('/listDepartment/:id',listDepartment)
+router.get('/authenticate',adminCheck)
 
 
 export default router

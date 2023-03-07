@@ -1,6 +1,5 @@
 import { useState,createContext } from 'react'
 import {BrowserRouter as Router,Route,Routes} from 'react-router-dom'
-import reactLogo from './assets/react.svg'
 import './App.css'
 import Home from './pages/User/Homepage/Home'
 import SignUp from './pages/User/SignUp/SignUp'
@@ -19,10 +18,11 @@ import AdminPanel from './pages/Admin/Home/Home'
 import AdminHome from './pages/Admin/Home/Home'
 import AdminLogin from './pages/Admin/LogIn/AdminLogin'
 import RejectedPage from './pages/Doctor/Rejected_Page/RejectedPage'
+import AdminRoutes from './pvtRoutes/AdminRoutes'
 
 
 function App() {
-
+  const [docDetails,SetDocDetails] = useState({})
   return (
     <Router>
       <Routes>
@@ -33,13 +33,15 @@ function App() {
             <Route path='/profile' element={<ProfilePage/>}/>
             <Route path='/doctorView' element={<DoctorPage/>}/>
         </Route>
-        <Route element = {<DoctorRoutes/>}> 
+        <Route element = {<DoctorRoutes/>}>
         <Route path='/doctor/home' element={<DoctorHome/>}/>
         <Route path='/doctor/profile' element={<Doctor_Profile/>}/>
         </Route>
+        <Route element={<AdminRoutes/>}>
+        <Route path='/admin/home' element={<AdminHome/>}/>
+        </Route>
         <Route path='/signUp' element={<SignUp/>}/>
         <Route path='/admin' element={<AdminLogin/>}/>
-        <Route path='/admin/home' element={<AdminHome/>}/>
         <Route path='/signIn' element={<SignIn/>}/>
         <Route path='/departments' element={<DepartmentPage/>}/>
         <Route path='/doctor/verification' element={<ProfileVerification/>}/>

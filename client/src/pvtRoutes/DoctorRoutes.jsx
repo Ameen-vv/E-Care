@@ -1,12 +1,15 @@
 import { useNavigate, Navigate, Outlet } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import axios from 'axios'
 import { doctorUrl } from '../../apiLinks/apiLinks'
+import { userContext } from '../store/Contexts'
 
 
 const DoctorRoutes = () => {
     const Navigate = useNavigate()
     const [doctorCheck, setDoctorCheck] = useState(false)
+
+  
     useEffect(() => {
         const token = localStorage.getItem('doctorToken')
         const headers = {Authorization:token}
@@ -19,6 +22,7 @@ const DoctorRoutes = () => {
             }
         })
     }, [])
+
     return (
         doctorCheck && <Outlet />
     )

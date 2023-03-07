@@ -1,5 +1,6 @@
 import { response } from "express";
-import { blockingUser, userDetails , unBlockingUser, gettingDoctors, blockingDoctor, unBlockingDoctor, gettingNewDoctors, approvingDoc, rejectingDoc, adminLogging, addingDepartment, departmentDetails, unListingDepartment, listingDepartment} from "./helpers/adminHelper.js"
+import { verify } from "jsonwebtoken";
+import { blockingUser, userDetails , unBlockingUser, gettingDoctors, blockingDoctor, unBlockingDoctor, gettingNewDoctors, approvingDoc, rejectingDoc, adminLogging, addingDepartment, departmentDetails, unListingDepartment, listingDepartment, verifyAdmin} from "./helpers/adminHelper.js"
 
 
 
@@ -96,4 +97,14 @@ export const listDepartment = (req,res)=>{
     listingDepartment(req.params.id).then(()=>{
         res.status(200).json({status:true})
     }).catch(()=>res.status(500))
+}
+
+export const adminCheck = (req,res)=>{
+    let token =  req.headers.authorization
+    verifyAdmin(token).then((response)=>{
+        res.status(200).json(response)
+    }).catch((err)=>{
+        console.log(err);
+        res.status(500).json({status:false})
+    })
 }

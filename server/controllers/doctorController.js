@@ -2,8 +2,7 @@ import doctorModel from "../model/doctorSchema.js";
 import bcrypt from 'bcrypt'
 import {generateToken} from '../jwtAuth/generateJwt.js'
 import  jwt  from "jsonwebtoken"
-import { doctorOtp, doctorSignIn, rejectedDetail, resendingOtp, reSubmit, signingUp } from "./helpers/doctorHelper.js";
-import { response } from "express";
+import { doctorOtp, doctorSignIn, getDepartmentDetails, rejectedDetail, resendingOtp, reSubmit, signingUp, doctorDetails, editDocProfile, editTimeSlots, deleteTimeSlot } from "./helpers/doctorHelper.js";
 
 
 export const sendOtp=  (req, res) => {
@@ -67,4 +66,35 @@ export const resendApplication = (req,res)=>{
     reSubmit(req.params.id).then((response)=>{
         res.status(200).json(response)
     }).catch(()=>res.status(404))
+}
+
+export const getDepartment = (req,res)=>{
+    getDepartmentDetails().then((response)=>{
+        res.status(200).json(response.departments)
+    }).catch((err)=>res.status(404))
+}
+
+export const getDocDetails = (req,res)=>{
+  let token = req.headers.authorization
+  doctorDetails(token).then((response)=>{
+    res.status(200).json(response.doctor)
+  }).catch((err)=>res.status(500).json({status:false}))
+}
+
+export const editProfile = (req,res)=>{
+    editDocProfile(req.body.doctorData,req.params.id).then((response)=>{
+        res.status(200).json(response)
+    }).catch((err)=>res.status(500))
+}
+
+export const timeSlots = (req,res)=>{
+    editTimeSlots(req.body.timeData,req.params.id).then((response)=>{
+           res.status(200).json(response) 
+    }).catch((err)=>res.status(500).json({status:false}))
+}
+
+export const deleteSlot = (req,res)=>{
+    deleteTimeSlot(req.body.data,req.params.id).then((response)=>{
+        res.status(200).json(response)
+    }).catch((err)=>res.status(500).json({status:false}))
 }

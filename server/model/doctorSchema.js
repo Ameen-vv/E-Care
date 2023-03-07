@@ -28,14 +28,15 @@ const doctorSchema = new Schema({
         type:String
     },
     timings:{
-        type:[]
+        type:[Object]
     },
     verification:{
         type:String,
         default:'pending'
     },
     department:{
-        type:String
+        type:ObjectId,
+        ref:'Department'
     },
     block:{
         type:Boolean,
@@ -46,6 +47,18 @@ const doctorSchema = new Schema({
     },
     rejectReason:{
         type:String
+    },
+    bio:{
+        type:String,
+        default:''
+    },
+    experience:{
+        type:Number,
+        default:1
+    },
+    price:{
+        type:Number,
+        default:200
     }
 
 })

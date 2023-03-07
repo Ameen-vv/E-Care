@@ -5,6 +5,7 @@ import { generateToken } from "../../jwtAuth/generateJwt.js";
 import departmentModel from "../../model/departmentModel.js";
 import cloudinary from "../../utils/cloudinary.js";
 import { response } from "express";
+import jwt from "jsonwebtoken"
 
 export const userDetails = ()=>{
     return new Promise(async(resolve,reject)=>{
@@ -98,7 +99,7 @@ export const adminLogging = ({email,password})=>{
             if(result){
                 if(result.email === email && result.password === password){
                     response.status = true
-                    const token = generateToken({  email:email ,type:'admin' })
+                    const token = generateToken({  adminId:result._id,email:email ,type:'admin' })
                     response.token  = token
                     resolve(response)
                 }else{
@@ -173,4 +174,22 @@ export const listingDepartment = (id)=>{
             resolve()
         }).catch((err)=>reject(err))       
     })   
+}
+
+export const verifyAdmin = (token)=>{
+    let response = {}
+    return new Promise((resolve,reject)=>{
+        jwt.verify(token,process.env.TOKEN_SECRET,(err,result)=>{
+            if(err){
+                reject(err)
+            }else{
+                adminModel.findOne({_id:result.adminId}).then((admin)=>{
+                    admin ? response.status = true : reject(response)
+                    resolve(response)
+                }).catch((err)=>{
+                    reject(err)
+                })
+            }
+        })
+    })
 }

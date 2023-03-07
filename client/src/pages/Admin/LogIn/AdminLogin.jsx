@@ -34,8 +34,8 @@ const AdminLogin = () => {
     event.preventDefault();
     axios.post(`${adminUrl}logIn`,{email,password}).then((response)=>{
         if(response.data.token){
-            document.cookie = `adminToken=${response.data.token}`
-            response.data.status ? Navigate('/admin/home') : setErr(true)
+          localStorage.setItem('adminToken',response.data.token)
+          response.data.status ? Navigate('/admin/home') : setErr(true)
         }else{
             setErr(true)
         }
