@@ -1,4 +1,4 @@
-import { forgotPass, resendingOtp, resettingPass, sendOtpHelper, SignUp, storeGuserDetails, userSignIn, verifyUser } from "./helpers/userHelper.js"
+import { forgotPass, getDepartmentDetails, resendingOtp, resettingPass, sendOtpHelper, SignUp, storeGuserDetails, userSignIn, verifyUser } from "./helpers/userHelper.js"
 
 
 export const sendOtp = async (req, res) => {
@@ -73,4 +73,9 @@ export const saveGoogleUser = (req,res)=>{
         console.log(err)
         res.status(404)
     })   
+}
+export const getDepartment = (req,res)=>{
+    getDepartmentDetails().then((response)=>{
+        res.status(200).json(response)
+    }).catch((err)=>res.status(500))
 }

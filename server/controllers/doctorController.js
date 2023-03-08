@@ -37,9 +37,14 @@ export const doctorAuth = (req,res)=>{
         jwt.verify(token,process.env.TOKEN_SECRET,async(err,result)=>{
             if(!err){
                 let user = await  doctorModel.findOne({_id:result.doctorId})
-                if(!user.block){
-                    response.user = true
-                    res.status(200).json(response)
+                if(user){
+                    if(!user.block){
+                        response.user = true
+                        res.status(200).json(response)
+                    }else{
+                        response.user = false
+                        res.status(200).json(response)
+                    }
                 }else{
                     response.user = false
                     res.status(200).json(response)

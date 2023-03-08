@@ -1,141 +1,96 @@
-import { useState } from "react";
+import React from 'react'
 
-const CardSlider = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const slidesPerPage = 4;
+function Test() {
+    const Departments = [
+      {
+        Name: "Counselling",
+        URL: "https://img.freepik.com/premium-vector/psychotherapy-counseling-psychologist-psychotherapist-patient-sitting-armchairs-therapy-session-treatment-stress-addictions-mental-problems_458444-260.jpg",
+        Description:
+          "Mental health is one of the greatest thing in our human life and we are helping you to achieve it  ",
+      },
+      {
+        Name: "Child Care",
+        URL: "https://img.freepik.com/premium-vector/girl-cat-campaign-using-cloth-bags_99326-405.jpg",
+        Description:
+          "We are providing the best healthy treatment for below 10 childrens",
+      },
+      {
+        Name: "Dermatologist",
+        URL: "https://media.istockphoto.com/id/936016040/vector/male-hair-loss.jpg?s=612x612&w=0&k=20&c=E7omxqfZyVfOAgTBjvC9RXg_xKvcnYWpREgS21-FX8o=",
+        Description:
+          "Having a good healthy hair will improve our beauty we have the best doctor to take care of your hair",
+      },
+      {
+        Name: "Dermatologist",
+        URL: "https://media.istockphoto.com/id/936016040/vector/male-hair-loss.jpg?s=612x612&w=0&k=20&c=E7omxqfZyVfOAgTBjvC9RXg_xKvcnYWpREgS21-FX8o=",
+        Description:
+          "Having a good healthy hair will improve our beauty we have the best doctor to take care of your hair",
+      },
+      {
+        Name: "Counselling",
+        URL: "https://img.freepik.com/premium-vector/psychotherapy-counseling-psychologist-psychotherapist-patient-sitting-armchairs-therapy-session-treatment-stress-addictions-mental-problems_458444-260.jpg",
+        Description:
+          "Mental health is one of the greatest thing in our human life and we are helping you to achieve it  ",
+      },
+      {
+        Name: "Child Care",
+        URL: "https://img.freepik.com/premium-vector/girl-cat-campaign-using-cloth-bags_99326-405.jpg",
+        Description:
+          "We are providing the best healthy treatment for below 10 childrens",
+      }
 
-  const slideCount = Math.ceil(departments.length / slidesPerPage);
-  const slides = Array.from({ length: slideCount + 2 }, (_, i) => {
-    if (i === 0) {
-      return slideCount - 1;
-    } else if (i === slideCount + 1) {
-      return 0;
-    } else {
-      return i - 1;
-    }
-  });
-
-  const goToSlide = (slideIndex) => {
-    setCurrentSlide(slideIndex);
-  };
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % (slideCount + 2));
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slideCount + 2) % (slideCount + 2));
-  };
-
-  const renderDepartmentCard = (department) => {
-    return (
-      <div
-        key={department.name}
-        className="w-full sm:w-1/2 md:w-1/4 p-4 flex flex-col items-center shadow-md hover:shadow-lg transition-shadow duration-200 rounded-md"
-      >
-        <img
-          src={department.image}
-          alt={department.name}
-          className="w-full h-40 object-cover rounded-md mb-4"
-        />
-        <h3 className="text-lg font-medium mb-2">{department.name}</h3>
-        <ul className="text-sm text-gray-600">
-          {department.diseases.map((disease, index) => (
-            <li key={index}>{disease}</li>
-          ))}
-        </ul>
-      </div>
-    );
-  };
-
+    ];
   return (
-    <div className="relative">
-      <div className="flex overflow-x-auto">
-        {slides.map((slideIndex) => (
-          <div
-            key={slideIndex}
-            className={`w-full flex-shrink-0 flex ${
-              currentSlide === slideIndex ? "" : "hidden"
-            }`}
-          >
-            {departments
-              .slice(
-                (slideIndex - 1) * slidesPerPage,
-                (slideIndex - 1) * slidesPerPage + slidesPerPage
-              )
-              .map((department) => renderDepartmentCard(department))}
+    <div className='w-full flex justify-center bg-white'>
+        <div className="container my-12 mx-auto px-4 md:px-12 lg:w-4/5 sm:w-full ">
+          <div className="flex flex-wrap -mx-1 lg:-mx-4">
+            {Departments.map((Department) => (
+              <div className="my-1 px-3 w-full md:w-1/2 lg:my-4 lg:px-3  xl:w-1/4 cursor-pointer hover:scale-105 ease-in-out duration-200">
+                <article className="overflow-hidden rounded-lg shadow-lg bg-white hover:bg-blue-50 h-[auto]">
+                  <div className="flex items-center justify-center leading-tight p-2 md:p-4">
+                  <a href="#">
+                    <img
+                      alt="Placeholder"
+                      className="block h-60 w-64 rounded-2xl object-cover"
+                      src={Department.URL}
+                    />
+                  </a>
+                  </div>
+
+                  <div className="flex items-center justify-center leading-tight p-2 md:p-4">
+                    <h1 className="text-lg">
+                      <p className="no-underline text-black">{Department.Name}</p>
+                    </h1>
+                  </div>
+
+                  <div className="flex items-center justify-center text-gray-500 text-center leading-tight p-2 md:p-4">
+                    <p > 
+                      {Department.Description}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-center leading-tight p-2 md:p-4  mb-3"   >
+                    <p className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-cyan-600 dark:hover:bg-cyan-700 dark:focus:ring-cyan-800">
+                      View Doctors
+                      <svg
+                        aria-hidden="true"
+                        className="w-4 h-4 ml-2 -mr-1"
+                        fill="currentColor"
+                        viewBox="0 0 20 20">
+                        <path
+                          fill-rule="evenodd"
+                          d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                          clip-rule="evenodd"></path>
+                      </svg>
+                    </p>
+                  </div>
+                </article>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <div className="absolute inset-x-0 bottom-0 flex justify-center mb-4">
-        {slides.map((slideIndex) => (
-          <button
-            key={slideIndex}
-            className={`mx-1 rounded-full w-3 h-3 ${
-              currentSlide === slideIndex
-                ? "bg-indigo-500"
-                : "bg-gray-300"
-            }`}
-            onClick={() => goToSlide(slideIndex)}
-          ></button>
-        ))}
-      </div>
-      <div className="absolute inset-y-0 left-0 flex items-center">
-        <button
-          className="px-2 py-1 bg-white text-gray-800 rounded-l-full shadow-md hover:bg-gray-100"
-          onClick={prevSlide}
-        >
-          &lt;
-        </button>
-      </div>
-      <div className="absolute inset-y-0 right-0 flex items-center">
-        <button
-          className="px-2 py-1 bg-white text-gray-800 rounded-r-full shadow-md hover:bg-gray-100" onClick={nextSlide}
-          >
-            &gt;
-          </button>
         </div>
       </div>
-      );
-      };
-      
-      export default CardSlider
+  )
+}
 
-
-
-    
-
-
-
-const departments = [
-  {
-    name: 'Cardiology',
-    image: 'https://source.unsplash.com/_A7H_L2NQKk/400x225',
-    diseases: ['Coronary Artery Disease', 'Heart Failure', 'Arrhythmia'],
-  },
-  {
-    name: 'Oncology',
-    image: 'https://source.unsplash.com/YeZqC_8Wz98/400x225',
-    diseases: ['Breast Cancer', 'Lung Cancer', 'Prostate Cancer'],
-  },
-  {
-    name: 'Neurology',
-    image: 'https://source.unsplash.com/fjICGzXZQzU/400x225',
-    diseases: ['Stroke', 'Alzheimer’s Disease', 'Epilepsy'],
-  },
-  {
-    name: 'Orthopedics',
-    image: 'https://source.unsplash.com/hSx1GD4KdNU/400x225',
-    diseases: ['Arthritis', 'Fractures', 'Joint Injuries'],
-  },
-  {
-    name: 'Gastroenterology',
-    image: 'https://source.unsplash.com/fZCMvYj8B1o/400x225',
-    diseases: ['Irritable Bowel Syndrome', 'Celiac Disease', 'Crohn’s Disease'],
-  },
-  {
-    name: 'Dermatology',
-    image: 'https://source.unsplash.com/_o8xVxkbJFg/400x225',
-    diseases: ['Acne', 'Eczema', 'Psoriasis'],
-  },
-];
+export default Test

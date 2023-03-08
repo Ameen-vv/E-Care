@@ -4,6 +4,7 @@ import sendMail from "../../nodeMailer/nodeMailer.js";
 import jwt from "jsonwebtoken"
 import { generateToken } from "../../jwtAuth/generateJwt.js";
 import bcrypt, { hash } from 'bcrypt'
+import departmentModel from "../../model/departmentModel.js";
 export let otpVerify
 
 
@@ -219,4 +220,14 @@ export const storeGuserDetails = (details) => {
             reject(err)
         })
     })
+}
+
+export const getDepartmentDetails = ()=>{
+    return new Promise((resolve,reject)=>{
+        departmentModel.find({list:true}).then((departments)=>{
+            console.log(departments);
+            resolve(departments)
+        }).catch((err)=>reject(err))
+    })
+    
 }

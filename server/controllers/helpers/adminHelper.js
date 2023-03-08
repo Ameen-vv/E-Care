@@ -76,8 +76,11 @@ export const approvingDoc = (id)=>{
     let response = {}
     return new Promise((resolve,reject)=>{
         doctorModel.findOneAndUpdate({_id:id},{$set:{verification:'success'}}).then((result)=>{
-            response.status = true
-            result && resolve(response)
+            departmentModel.updateOne({_id:result.department},{$push:{doctors:result._id}}).then((data)=>{
+                data.acknowledged ? response.status = true : response.status = false
+                resolve(response)
+            })
+
         })
     })
 }
@@ -131,6 +134,7 @@ export const addingDepartment = (data,image)=>{
                     let newDepartment = new departmentModel({
                         name:departmentName,
                         commonDiseases:diseases,
+                        description:data.description,
                         imageUrl:res.secure_url
                     })
                     newDepartment.save().then(()=>{

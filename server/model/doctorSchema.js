@@ -56,9 +56,13 @@ const doctorSchema = new Schema({
         type:Number,
         default:1
     },
-    price:{
+    priceOnline:{
         type:Number,
         default:200
+    },
+    priceOffline:{
+        type:Number,
+        default:400
     }
 
 })

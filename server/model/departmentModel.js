@@ -22,6 +22,9 @@ const departmentSchema = new Schema({
     list:{
         type:Boolean,
         default:true
+    },
+    description:{
+        type:String
     }
 
 })

@@ -3,24 +3,37 @@ import './DoctorList.css'
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 import { adminUrl } from '../../../../apiLinks/apiLinks';
+import toast, { Toaster } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 function DoctorList() {
     const[doctorData,setDoctorData] = useState([])
     const [reload,setReload] = useState(false)
-
+    const Navigate = useNavigate()
+    let token = localStorage.getItem('adminToken')
     useEffect(()=>{
-        axios.get(`${adminUrl}getDoctorList`).then((response)=>{
+        token = localStorage.getItem('adminToken')
+        const headers = {authorization:token}
+        axios.get(`${adminUrl}getDoctorList`,{headers}).then((response)=>{
             setDoctorData(response.data)
+        }).catch((err)=>{
+            err?.response?.status === 401 ? Navigate('/admin') : toast.error('something went wrong')
         })
     },[reload])
     const blockDoctor = (doctorId)=>{
-        axios.get(`${adminUrl}blockDoctor/${doctorId}`).then((response)=>{
+        const headers = {authorization:token}
+        axios.get(`${adminUrl}blockDoctor/${doctorId}`,{headers}).then((response)=>{
             reload ? setReload(false) : setReload(true)
+        }).catch((err)=>{
+            err?.response?.status === 401 ? Navigate('/admin') : toast.error('something went wrong')
         })
     }
     const unBlockDoctor = (doctorId)=>{
-        axios.get(`${adminUrl}unBlockDoctor/${doctorId}`).then((response)=>{
+        const headers = {authorization:token}
+        axios.get(`${adminUrl}unBlockDoctor/${doctorId}`,{headers}).then((response)=>{
             reload ? setReload(false) : setReload(true)
+        }).catch((err)=>{
+            err?.response?.status === 401 ? Navigate('/admin') : toast.error('something went wrong')
         })
     }
     
@@ -66,6 +79,8 @@ function DoctorList() {
     ];
 
     return (
+        <>
+        <Toaster/>
         <div className='dataTable w-100 '>
             <DataGrid
                 getRowId={(row) => row._id}
@@ -76,6 +91,7 @@ function DoctorList() {
                 disableSelectionOnClick
             />
         </div>
+        </>
     )
 }
 

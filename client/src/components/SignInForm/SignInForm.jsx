@@ -4,6 +4,7 @@ import './SignInForm.css'
 import axios from 'axios'
 import { userUrl, doctorUrl } from '../../../apiLinks/apiLinks'
 import { firebaseContext, userContext } from '../../store/Contexts'
+import { toast, Toaster } from 'react-hot-toast'
 
 function SignInForm() {
     const [signInForm, setSignInForm] = useState('client')
@@ -14,7 +15,7 @@ function SignInForm() {
     const [password, setPassword] = useState('')
     const [doctorEmail, setDoctorEmail] = useState('')
     const [doctorPass, setDoctorPass] = useState('')
-    const [userErr, setUserErr] = useState(false)
+    // const [userErr, setUserErr] = useState(false)
     const [reject, setReject] = useState(false)
     const [gErr, setGerr] = useState(false)
     const [otp, setOtp] = useState('')
@@ -43,10 +44,9 @@ function SignInForm() {
                     localStorage.setItem('userToken',response.data.token)
                 }
                 SetUser('user')
-                setUserErr(false)
                 Navigate('/')
             } else {
-                setUserErr(true)
+                toast.error('invalid username or password')
             }
         }).finally(()=>{
             setLoading(false)
@@ -64,7 +64,7 @@ function SignInForm() {
             }
             response.data.status === 'pending' && Navigate('/doctor/verification')
             response.data.status === 'rejected' && Navigate('/doctor/rejected',{state:{id:response.data.id}})
-            response.data.status === 'error' && setUserErr(true)
+            response.data.status === 'error' &&  toast.error('invalid username or password')
         }).finally(()=>setLoading(false))
 
     }
@@ -73,9 +73,8 @@ function SignInForm() {
         setLoading(true)
         axios.post(`${userUrl}forgotPass`, { email }).then((response) => {
             if (response.data.status) {
-                setUserErr(false)
                 setSignInForm('reset-pass')
-            } else { setUserErr(true) }
+            } else { toast.error('invalid email') }
         }).finally(()=>setLoading(false))
 
     }
@@ -83,8 +82,7 @@ function SignInForm() {
         e.preventDefault()
         setLoading(true)
         axios.post(`${userUrl}resetPass`, { otp, email, password }).then((response) => {
-            setUserErr(false)
-            response.data.status ? setSignInForm('client') : setUserErr(true)
+            response.data.status ? setSignInForm('client') : toast.error('invalid otp')
         }).finally(()=>setLoading(true))
     }
     const googleLogin = () => {
@@ -103,6 +101,7 @@ function SignInForm() {
 
     return (
         <section className="bg-white dark:bg-gray-900">
+            <Toaster/>
             {loading && <div className="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
                 <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
             </div> }
@@ -164,8 +163,8 @@ function SignInForm() {
                                     </svg>
                                 </button>
 
-                                {userErr &&
-                                    <p className='text-danger'>Invalid username or password</p>}
+                                {/* {userErr &&
+                                    <p className='text-danger'>Invalid username or password</p>} */}
 
                                </form>
                                 <button
@@ -225,8 +224,8 @@ function SignInForm() {
                                             clipRule="evenodd" />
                                     </svg>
                                 </button>
-                                {userErr &&
-                                        <p className='text-danger mt-2'>Invalid email or password</p>}
+                                {/* {userErr &&
+                                        <p className='text-danger mt-2'>Invalid email or password</p>} */}
                             </form>
                         }{
                             signInForm === 'forgot-pass' &&
@@ -245,8 +244,8 @@ function SignInForm() {
                                             clipRule="evenodd" />
                                     </svg>
                                 </button>
-                                {userErr &&
-                                    <p className='text-danger'>Invalid email</p>}
+                                {/* {userErr &&
+                                    <p className='text-danger'>Invalid email</p>} */}
 
                             </form>
                         }
@@ -270,8 +269,8 @@ function SignInForm() {
                                             clipRule="evenodd" />
                                     </svg>
                                 </button>
-                                {userErr &&
-                                    <p className='text-danger'>Invalid Otp</p>}
+                                {/* {userErr &&
+                                    <p className='text-danger'>Invalid Otp</p>} */}
                             </form>
                         }
 

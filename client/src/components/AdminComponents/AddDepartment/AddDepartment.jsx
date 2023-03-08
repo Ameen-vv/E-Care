@@ -3,6 +3,7 @@ import React,{useContext, useRef, useState} from 'react'
 import { adminUrl } from '../../../../apiLinks/apiLinks'
 import { adminLoading } from '../../../pages/Admin/Home/Home'
 import toast, { Toaster } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 function AddDepartment() {
     const formRef = useRef(null)
@@ -12,10 +13,13 @@ function AddDepartment() {
     const [err,setErr] = useState(false)
     const [success,setSuccess] = useState(false)
     const [serverErr,setServerErr] = useState(false)
+    const [description,setDescription] = useState('')
     const {changeLoading} = useContext(adminLoading)
+    const Navigate = useNavigate()
     const departmentData = {
         department,
-        diseases
+        diseases,
+        description
     }
     
 
@@ -26,13 +30,17 @@ function AddDepartment() {
         reader.readAsDataURL(image)
         reader.onloadend = () =>{
             let imageData = reader.result
-            axios.post(`${adminUrl}addDepartment`,{departmentData,imageData}).then((response)=>{
+            let token = localStorage.getItem('adminToken')
+            const headers = {Authorization:token}
+            axios.post(`${adminUrl}addDepartment`,{departmentData,imageData},{headers}).then((response)=>{
                 response.data.status === 'exist' && toast.error('Department already exists')
                 if(response.data.status ==='success'){ 
                     formRef.current.reset()
                     toast.success('Successfully added department')
                 }
                 response.status != 200 && toast.error('something went wrong try again')
+            }).catch((err)=>{
+                err?.response?.status === 401 ? Navigate('/admin') : toast.error('something went wrong')
             }).finally(()=>changeLoading(false))
         }
      }
@@ -44,6 +52,10 @@ function AddDepartment() {
                 <div>
                     <label className="block mb-2 text-sm text-gray-400">Name</label>
                     <input name='name'  onChange={(e)=>setDepartment(e.target.value)} type="text" placeholder="Cardiology" required className="block w-full px-5 py-3 mt-2 text-black-800 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                </div>
+                <div>
+                    <label className="block mb-2 text-sm text-gray-400">Description</label>
+                    <input name='name'  onChange={(e)=>setDescription(e.target.value)} type="text" placeholder="Cardiology" required className="block w-full px-5 py-3 mt-2 text-black-800 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
                 </div>
                 <div>
                     <label className="block mb-2 text-sm text-gray-400">Common Diseases</label>

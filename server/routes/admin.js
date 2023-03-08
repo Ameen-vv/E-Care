@@ -14,25 +14,26 @@ import { addDepartment,
          unBlockDoctor, 
          unBlockUser, 
          unlistDepartment} from '../controllers/adminController.js'
+import { adminAuthentication } from '../middlewares/Authentications.js'
 const router = express.Router()
 
 
 
-router.get('/getUsers',getUsers)
-router.get('/blockUser/:id',blockUser)
-router.get('/unBlockUser/:id',unBlockUser)
-router.get('/getDoctorList',getDoctor)
-router.get('/blockDoctor/:id',blockDoctor)
-router.get('/unBlockDoctor/:id',unBlockDoctor)
-router.get('/getNewDoctors',getNewDoctors)
-router.get('/approve/:id',approveDoctor)
-router.post('/reject',rejectDoctor)
+router.get('/getUsers',adminAuthentication,getUsers)
+router.get('/blockUser/:id',adminAuthentication,blockUser)
+router.get('/unBlockUser/:id',adminAuthentication,unBlockUser)
+router.get('/getDoctorList',adminAuthentication,getDoctor)
+router.get('/blockDoctor/:id',adminAuthentication,blockDoctor)
+router.get('/unBlockDoctor/:id',adminAuthentication,unBlockDoctor)
+router.get('/getNewDoctors',adminAuthentication,getNewDoctors)
+router.get('/approve/:id',adminAuthentication,approveDoctor)
+router.post('/reject',adminAuthentication,rejectDoctor)
 router.post('/logIn',adminLogin)
-router.post('/addDepartment',addDepartment)
-router.get('/departments',getDepartments)
-router.get('/unListDepartment/:id',unlistDepartment)
-router.get('/listDepartment/:id',listDepartment)
-router.get('/authenticate',adminCheck)
+router.post('/addDepartment',adminAuthentication,addDepartment)
+router.get('/departments',adminAuthentication,getDepartments)
+router.get('/unListDepartment/:id',adminAuthentication,unlistDepartment)
+router.get('/listDepartment/:id',adminAuthentication,listDepartment)
+router.get('/authenticate',adminAuthentication,adminCheck)
 
 
 export default router

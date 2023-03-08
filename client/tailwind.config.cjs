@@ -10,6 +10,7 @@ module.exports = {
       secColor:'#66A1FD',
       textBlue:'#00468b'
     }},
+   
   },
   plugins: [],
 }

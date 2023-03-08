@@ -9,34 +9,43 @@ import Card from "@mui/material/Card";
 import CardMedia from "@mui/material/CardMedia";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
-
 import toast, { Toaster } from 'react-hot-toast';
 import { adminLoading } from '../../../pages/Admin/Home/Home';
+import { useNavigate } from 'react-router-dom';
 
 
 function Departments() {
     const[departments,setDepartments] = useState([])
     const { changeLoading } = useContext(adminLoading)
     const [reload,setReload] = useState(false)
-    const token = localStorage.getItem('adminToken')
-    const headers = {Authorization:token}
+    const Navigate = useNavigate()
+    let token = localStorage.getItem('adminToken')
     useEffect(()=>{
         changeLoading(true)
+        token = localStorage.getItem('adminToken')
+        const headers = {Authorization:token}
         axios.get(`${adminUrl}departments`,{headers}).then((response)=>{
             response.status === 200 ? setDepartments(response.data) : toast.error('some unexpected errors')
+        }).catch((err)=>{
+            err?.response?.status === 401 ? Navigate('/admin') : toast.error('something went wrong')
         }).finally(()=>changeLoading(false))
     },[reload])
 
     const unListDepartment = (id)=>{
-        console.log('asdgvgs');
+        const headers = {Authorization:token}
         axios.get(`${adminUrl}unListDepartment/${id}`,{headers}).then((response)=>{
             response.status === 200 ? (reload ? setReload(false):setReload(true)) : toast.error('some unexpected errors')
-        }).catch((err)=>console.log(err))
+        }).catch((err)=>{
+            err?.response?.status === 401 ? Navigate('/admin') : toast.error('something went wrong')
+        })
     }
     const listDepartment = (id)=>{
+        const headers = {Authorization:token}
         axios.get(`${adminUrl}listDepartment/${id}`,{headers}).then((response)=>{
             response.status === 200 ? (reload ? setReload(false):setReload(true)) : toast.error('some unexpected errors')
-        }).catch((err)=>console.log(err))
+        }).catch((err)=>{
+            err?.response?.status === 401 ? Navigate('/admin') : toast.error('something went wrong')
+        })
     }
 
 

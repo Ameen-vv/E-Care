@@ -10,9 +10,11 @@ import { toast, Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 const DoctorProfile = () => {
+    const { docDetails, SetDocDetails } = useContext(docDetailsContext)
     const [activeTab, setActiveTab] = useState("profile")
     const endTimeRef = useRef('')
     const timeFormRef = useRef('')
+    const editFormRef = useRef('')
     const [email, setEmail] = useState('')
     const [phone, setPhone] = useState('')
     const [address, setAddress] = useState('')
@@ -23,9 +25,9 @@ const DoctorProfile = () => {
     const [resetPage, setResetPage] = useState(false)
     const [startTime, setStartTime] = useState("")
     const [endTime, setEndTime] = useState('')
-    const [price, setPrice] = useState('')
+    const [priceOnline, setPriceOnline] = useState('')
+    const [priceOffline, setPriceOffline] = useState('')
     const [loading, setLoading] = useState(false)
-    const { docDetails, SetDocDetails } = useContext(docDetailsContext)
 
     const Navigate = useNavigate()
     useEffect(() => {
@@ -68,12 +70,13 @@ const DoctorProfile = () => {
             address: address === '' ? docDetails?.address : address,
             bio: bio === '' ? docDetails?.bio : bio,
             experience: experience === '' ? docDetails?.experience : experience,
-            price: price === '' ? docDetails?.price : price
+            priceOnline: priceOnline === '' ? docDetails?.priceOnline : priceOnline,
+            priceOffline:priceOffline === '' ? docDetails?.priceOffline : priceOffline
         }
         const token = localStorage.getItem('doctorToken')
         axios.post(`${doctorUrl}editProfile/${docDetails?._id}`, { token, doctorData }).then((response) => {
-            console.log(response.status)
             response.status === 200 && (response.data.status ? toast.success('edited successfully') : toast.error('something went wrong'))
+            editFormRef.current.reset()
             response.status === 200 && setResetPage(resetPage => !resetPage)
         }).catch((err) => {
             (err?.response?.status === 401 ? Navigate('/signIn') : toast.error('something went wrong'))
@@ -253,7 +256,7 @@ const DoctorProfile = () => {
                 return (
                     <div>
                         <h2 className="text-3xl font-bold mb-4">Edit Profile</h2>
-                        <form onSubmit={editProfile}>
+                        <form onSubmit={editProfile} ref={editFormRef}>
                             <div className="mb-4">
                                 <label className="block text-gray-700 font-bold mb-2" htmlFor="email">
                                     Email
@@ -286,9 +289,15 @@ const DoctorProfile = () => {
                             </div>
                             <div className="mb-4">
                                 <label className="block text-gray-700 font-bold mb-2" htmlFor="address">
-                                    Price
+                                    Price(online)
                                 </label>
-                                <input onChange={(e) => setPrice(e.target.value)} className="w-full px-3 py-2 placeholder-gray-400 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500 focus:ring-opacity-50" type="number" id="address" name="address" placeholder="Enter your experience" />
+                                <input onChange={(e) => setPriceOnline(e.target.value)} className="w-full px-3 py-2 placeholder-gray-400 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500 focus:ring-opacity-50" type="number" id="address" name="address" placeholder="Enter your experience" />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-gray-700 font-bold mb-2" htmlFor="address">
+                                    Price(offline)
+                                </label>
+                                <input onChange={(e) => setPriceOffline(e.target.value)} className="w-full px-3 py-2 placeholder-gray-400 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500 focus:ring-opacity-50" type="number" id="address" name="address" placeholder="Enter your experience" />
                             </div>
                             <button className="save-button text-white py-2 px-4 rounded-full  focus:outline-none focus:ring focus:ring-blue-500 focus:ring-opacity-50">
                                 Save Changes

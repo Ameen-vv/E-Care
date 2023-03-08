@@ -17,6 +17,8 @@ import CardMedia from "@mui/material/CardMedia";
 import { adminLoading } from '../../../pages/Admin/Home/Home';
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
+import toast, { Toaster } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 
 function NewDoctors() {
@@ -25,29 +27,45 @@ function NewDoctors() {
     const [open, setOpen] = useState(false)
     const [reject, setReject] = useState('')
     const {  changeLoading } = useContext(adminLoading)
+    const Navigate = useNavigate()
+    let token = localStorage.getItem('adminToken')
+
     useEffect(() => {
         changeLoading(true)
-        axios.get(`${adminUrl}getNewDoctors`).then((response) => {
+        token = localStorage.getItem('adminToken')
+        const headers = {authorization:token}
+        axios.get(`${adminUrl}getNewDoctors`,{headers}).then((response) => {
             setDoctorData(response.data)
+        }).catch((err)=>{
+            err?.response?.status === 401 ? Navigate('/admin') : toast.error('something went wrong')
         }).finally(() => changeLoading(false))
     }, [reload])
+
     const approveDoctor = (doctorId) => {
         changeLoading(true)
-        axios.get(`${adminUrl}approve/${doctorId}`).then((response) => {
+        const headers = {authorization:token}
+        axios.get(`${adminUrl}approve/${doctorId}`,{headers}).then((response) => {
             response.data && reload ? setReload(false) : setReload(true)
+        }).catch((err)=>{
+            err?.response?.status === 401 ? Navigate('/admin') : toast.error('something went wrong')
         }).finally(() => changeLoading(false))
     }
+
     const handleClickOpen = () => {
         setOpen(true);
     }
     const handleClose = () => {
         setOpen(false);
     }
+
     const rejectDoctor = (doctorId) => {
         setOpen(false)
         changeLoading(true)
-        axios.post(`${adminUrl}reject`, { doctorId, reject }).then((response) => {
+        const headers = {authorization:token}
+        axios.post(`${adminUrl}reject`, { doctorId, reject },{headers}).then((response) => {
             response.data && reload ? setReload(false) : setReload(true)
+        }).catch((err)=>{
+            err?.response?.status === 401 ? Navigate('/admin') : toast.error('something went wrong')
         }).finally(() => changeLoading(false))
     }
 
@@ -183,6 +201,7 @@ function NewDoctors() {
     ];
     return (
         <div className='dataTable w-100'>
+            <Toaster/>
             <DataGrid
                 getRowId={(row) => row._id}
                 rows={doctorData}
