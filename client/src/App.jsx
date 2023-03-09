@@ -19,6 +19,7 @@ import AdminHome from './pages/Admin/Home/Home'
 import AdminLogin from './pages/Admin/LogIn/AdminLogin'
 import RejectedPage from './pages/Doctor/Rejected_Page/RejectedPage'
 import AdminRoutes from './pvtRoutes/AdminRoutes'
+import DoctorList from './pages/User/DoctorViewingPage/DoctorList'
 
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
             <Route path='/book' element={<Appointment/>}/>
             <Route path = '/wallet' element={<WalletPage/>}/>
             <Route path='/profile' element={<ProfilePage/>}/>
+            <Route path='/doctorList' element={<DoctorList/>}/>
             <Route path='/doctorView' element={<DoctorPage/>}/>
         </Route>
         <Route element = {<DoctorRoutes/>}>

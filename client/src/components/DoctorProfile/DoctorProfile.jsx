@@ -5,7 +5,7 @@ import './DoctorProfile.css';
 import { useContext } from "react";
 import { docDetailsContext } from "../../pages/Doctor/Doctor_Profile/Doctor_Profile";
 import axios from "axios";
-import { doctorUrl } from "../../../apiLinks/apiLinks";
+import { doctorUrl, userUrl } from "../../../apiLinks/apiLinks";
 import { toast, Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -71,7 +71,7 @@ const DoctorProfile = () => {
             bio: bio === '' ? docDetails?.bio : bio,
             experience: experience === '' ? docDetails?.experience : experience,
             priceOnline: priceOnline === '' ? docDetails?.priceOnline : priceOnline,
-            priceOffline:priceOffline === '' ? docDetails?.priceOffline : priceOffline
+            priceOffline: priceOffline === '' ? docDetails?.priceOffline : priceOffline
         }
         const token = localStorage.getItem('doctorToken')
         axios.post(`${doctorUrl}editProfile/${docDetails?._id}`, { token, doctorData }).then((response) => {
@@ -109,17 +109,36 @@ const DoctorProfile = () => {
     const handleTabClick = (tabName) => {
         setActiveTab(tabName);
     };
-    const deleteSlot = (index)=>{
+    const deleteSlot = (index) => {
         setLoading(true)
         const token = localStorage.getItem('doctorToken')
         const headers = { Authorization: token }
         let data = docDetails.timings[index]
-        axios.post(`${doctorUrl}deleteSlot/${docDetails._id}`,{data},{headers}).then((response)=>{
-            response.status === 200 && (response.data.status ? toast.success('deleted successfully'):toast.error('some unexpected error try again'))
+        axios.post(`${doctorUrl}deleteSlot/${docDetails._id}`, { data }, { headers }).then((response) => {
+            response.status === 200 && (response.data.status ? toast.success('deleted successfully') : toast.error('some unexpected error try again'))
             response.status === 200 && setResetPage(resetPage => !resetPage)
-        }).catch((err)=>{
+        }).catch((err) => {
             err?.response?.status === 401 ? Navigate('/signIn') : toast.error('something went wrong')
-        }).finally(()=>setLoading(false))
+        }).finally(() => setLoading(false))
+    }
+
+    const editProfilePic = (e)=>{
+        console.log(e.target.files[0]);
+        let image = e.target.files[0]
+        const reader = new FileReader()
+        reader.readAsDataURL(image)
+        reader.onloadend = ()=>{
+            let imageData = reader.result
+            let token = localStorage.getItem('doctorToken')
+            const headers = {Authorization:token}
+            axios.post(`${doctorUrl}editProfilePic/${docDetails._id}`,{imageData},{headers}).then((response)=>{
+                response.status === 200 && toast.success('profile pic changed')
+                response.status === 200 && setResetPage(resetPage => !resetPage)
+
+            }).catch((err)=>{
+                err?.response?.status === 401 ? Navigate('/signIn') : toast.error('something went wrong')
+            })
+        }
     }
 
     const notifications = [{
@@ -442,7 +461,7 @@ const DoctorProfile = () => {
                                                     <span>{time?.startTime} - {time?.endTime}</span>
                                                 </p>
                                                 <button className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg"
-                                                onClick={()=>deleteSlot(index)}
+                                                    onClick={() => deleteSlot(index)}
                                                 >
                                                     Delete
                                                 </button>
@@ -477,11 +496,13 @@ const DoctorProfile = () => {
             <div className="flex flex-col md:flex-row bg-white rounded-lg shadow-md overflow-hidden ">
                 <div className="w-full md:w-1/4 bg-gray-50 p-4 border-r border-gray-200 mb-5">
                     <div className="flex flex-col items-center">
-                        <img src="/images/doctor.jpeg" alt="Doctor" className="w-32 h-32 rounded-full my-8" />
-                        <button className="flex items-center bg-blue-600 text-white py-2 px-4 rounded-full mb-4">
+                        <img src={docDetails?.profilePic} alt="Doctor" className="w-32 h-32 rounded-full my-8" />
+                        <label htmlFor="fileInput" className="flex items-center bg-blue-600 text-white py-2 px-4 rounded-full mb-4 cursor-pointer">
                             <PencilAltIcon className="h-6 w-6 mr-2" />
                             <span>Edit Profile</span>
-                        </button>
+                        </label>
+                        <input id="fileInput" type="file" accept="image/*" className="hidden"  onChange={editProfilePic}/>
+
                         <h2 className="text-2xl font-semibold mb-2">{docDetails?.fullName}</h2>
                         <span className="text-gray-500 text-lg mb-4">{docDetails?.department?.name}</span>
                         <div className="mt-8">

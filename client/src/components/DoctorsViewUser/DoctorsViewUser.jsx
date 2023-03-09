@@ -1,46 +1,72 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const List = () => {
+const List = ({data}) => {
+  const [itemsCount,setItemsCount] = useState(4)
   const Doctors = [
     {
       Name: "demo",
-      Department: "Child doctor",
+      Department: "Department",
       URL: "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=0.66698xw:1xh;center,top&resize=1200:*",
     },
     {
       Name: "demo",
-      Department: "Child doctor",
+      Department: "Department",
       URL: "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=0.66698xw:1xh;center,top&resize=1200:*",
     },
     {
       Name: "demo",
-      Department: "Child doctor",
+      Department: "Department",
       URL: "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=0.66698xw:1xh;center,top&resize=1200:*",
     },
     {
       Name: "demo",
-      Department: "Child doctor",
+      Department: "Department",
       URL: "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=0.66698xw:1xh;center,top&resize=1200:*",
     },
     {
       Name: "demo",
-      Department: "Child doctor",
+      Department: "Department",
       URL: "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=0.66698xw:1xh;center,top&resize=1200:*",
     },
     {
       Name: "demo",
-      Department: "Child doctor",
+      Department: "Department",
       URL: "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=0.66698xw:1xh;center,top&resize=1200:*",
     },
     {
       Name: "demo",
-      Department: "Child doctor",
+      Department: "Department",
       URL: "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=0.66698xw:1xh;center,top&resize=1200:*",
     },
     {
       Name: "demo",
-      Department: "Child doctor",
+      Department: "Department",
+      URL: "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=0.66698xw:1xh;center,top&resize=1200:*",
+    },
+    {
+      Name: "demo",
+      Department: "Department",
+      URL: "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=0.66698xw:1xh;center,top&resize=1200:*",
+    },
+    {
+      Name: "demo",
+      Department: "Department",
+      URL: "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=0.66698xw:1xh;center,top&resize=1200:*",
+    },
+    {
+      Name: "demo",
+      Department: "Department",
+      URL: "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=0.66698xw:1xh;center,top&resize=1200:*",
+    },
+    {
+      Name: "demo",
+      Department: "Department",
+      URL: "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=0.66698xw:1xh;center,top&resize=1200:*",
+    },
+    {
+      Name: "demo",
+      Department: "Department",
       URL: "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=0.66698xw:1xh;center,top&resize=1200:*",
     }
   ];
@@ -52,8 +78,9 @@ const List = () => {
       <div>
         <div class="container my-12 mx-auto px-4 md:px-12 justify-center w-full flex">
           <div class="flex flex-wrap -mx-1 lg:-mx-4 lg:w-4/5 sm:w-full">
-            {Doctors.map((doctor) => (
-              <div class="my-1 px-1 w-full md:w-1/2 lg:my-4 lg:px-3 lg:w-1/3  xl:w-1/4 lg:my-4 lg:px-4  cursor-pointer hover:scale-105 ease-in-out duration-200">
+          <div className='ms-4 w-full justify-start flex department-subheading mt-5  w-3/4 mb-3'><h1 className=''>Our Prominent Doctors</h1></div>
+            {Doctors.slice(0,itemsCount).map((doctor) => (
+              <div class="my-1 px-1 w-full md:w-1/2 lg:my-4 lg:px-3 lg:w-1/3  xl:w-1/4 lg:my-4 lg:px-4  cursor-pointer hover:scale-105 ease-in-out duration-200 mb-3">
                 <article class="overflow-hidden rounded-lg shadow-lg bg-white hover:bg-blue-50 h-[auto]">
                   <div className="flex items-center justify-center leading-tight p-2 md:p-4">
                     <a href="#">
@@ -76,7 +103,7 @@ const List = () => {
                   </div>
         
         
-                  <div className="flex items-center justify-start leading-tight p-2 md:p-4">
+                  <div className="flex items-center justify-start leading-tight p-2 md:p-4 mb-3">
                     
 
                     <p class="inline-flex items-center ml-16 px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-cyan-600 dark:hover:bg-cyan-700 dark:focus:ring-cyan-800">
@@ -97,6 +124,12 @@ const List = () => {
                 </article>
               </div>
             ))}
+            <div className={`w-full flex justify-center mt-2 `} >
+              <button className={`btn bg-mainColor text-white hover:bg-secColor focus:bg-mainColor  text-xs ${Doctors.length<=itemsCount ? 'hidden': ''} me-2`}
+               onClick={()=>setItemsCount(itemsCount=>itemsCount+4)}>Load More</button>
+               <button className={`btn bg-mainColor text-white hover:bg-secColor focus:bg-mainColor  text-xs ${itemsCount === 4 ? 'hidden': ''}`}
+              onClick={()=>setItemsCount(itemsCount=>itemsCount-4)}>Show Less</button>
+               </div>
           </div>
         </div>
       </div>

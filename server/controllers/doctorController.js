@@ -1,8 +1,20 @@
 import doctorModel from "../model/doctorSchema.js";
-import bcrypt from 'bcrypt'
-import {generateToken} from '../jwtAuth/generateJwt.js'
+// import bcrypt from 'bcrypt'
+// import {generateToken} from '../jwtAuth/generateJwt.js'
 import  jwt  from "jsonwebtoken"
-import { doctorOtp, doctorSignIn, getDepartmentDetails, rejectedDetail, resendingOtp, reSubmit, signingUp, doctorDetails, editDocProfile, editTimeSlots, deleteTimeSlot } from "./helpers/doctorHelper.js";
+import { 
+    doctorOtp, 
+    doctorSignIn, 
+    getDepartmentDetails, 
+    rejectedDetail, 
+    resendingOtp, 
+    reSubmit, 
+    signingUp, 
+    doctorDetails, 
+    editDocProfile, 
+    editTimeSlots, 
+    deleteTimeSlot, 
+    editDocProfilePic } from "./helpers/doctorHelper.js";
 
 
 export const sendOtp=  (req, res) => {
@@ -103,3 +115,10 @@ export const deleteSlot = (req,res)=>{
         res.status(200).json(response)
     }).catch((err)=>res.status(500).json({status:false}))
 }
+
+export const editProfilePic = (req,res)=>{
+    editDocProfilePic(req.body.imageData,req.params.id).then(()=>{
+        res.status(200).json({status:true})
+    }).catch((err)=>res.status(500))    
+}
+

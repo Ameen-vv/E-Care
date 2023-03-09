@@ -4,22 +4,41 @@ import { userUrl } from "../../../apiLinks/apiLinks";
 
 let token = localStorage.getItem('userToken')
 let headers = {authorization:token}
-export const fetchDoctors = createAsyncThunk('doctor/fetchDOctors',()=>{
-    return(
-        axios.get(`${userUrl}getDoctors`,{headers}).then((response)=>{
-            let result={
-                data:response.data,
-                status:response.status
-            }
-            return result
-        }).catch((err)=>{
-            let error = {
-                status : err?.response?.status,
-                message: err?.message
-            }
-            return error
-        })
-    )
+export const fetchDoctors = createAsyncThunk('doctor/fetchDOctors',(departmentId)=>{
+    if(departmentId){
+        return(
+            axios.get(`${userUrl}getDoctorsByDepartment/${departmentId}`,{headers}).then((response)=>{
+                let result={
+                    data:response.data,
+                    status:response.status
+                }
+                return result
+            }).catch((err)=>{
+                let error = {
+                    status : err?.response?.status,
+                    message: err?.message
+                }
+                return error
+            })
+        )
+    }else{
+        return(
+            axios.get(`${userUrl}getDoctors`,{headers}).then((response)=>{
+                let result={
+                    data:response.data,
+                    status:response.status
+                }
+                return result
+            }).catch((err)=>{
+                let error = {
+                    status : err?.response?.status,
+                    message: err?.message
+                }
+                return error
+            })
+        )
+    }
+    
 })
 
 const doctorSlice = createSlice({

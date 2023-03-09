@@ -8,9 +8,10 @@ import AutoSlideCardGrid from '../../../components/test/test'
 
 function DepartmentPage() {
   return (
-    <div>
+    <div className='flex justify-center flex-column w-full' >
       <Header/>
-      {/* <DepartmentSection/> */}
+      <div className='w-full justify-center flex department-heading mt-5 '><h1 className=''>Find A Doctor</h1></div>
+      <DepartmentSection/>
       <List/>
       <Footer/>
     </div>

@@ -1,4 +1,16 @@
-import { forgotPass, getDepartmentDetails, resendingOtp, resettingPass, sendOtpHelper, SignUp, storeGuserDetails, userSignIn, verifyUser } from "./helpers/userHelper.js"
+import { response } from "express"
+import { 
+    forgotPass, 
+    getAllDoctors, 
+    getDepartmentDetails, 
+    getDoctorsByDepartment, 
+    resendingOtp, 
+    resettingPass, 
+    sendOtpHelper, 
+    SignUp, 
+    storeGuserDetails, 
+    userSignIn, 
+    verifyUser } from "./helpers/userHelper.js"
 
 
 export const sendOtp = async (req, res) => {
@@ -76,6 +88,18 @@ export const saveGoogleUser = (req,res)=>{
 }
 export const getDepartment = (req,res)=>{
     getDepartmentDetails().then((response)=>{
+        res.status(200).json(response)
+    }).catch((err)=>res.status(500))
+}
+
+export const getDoctorsByDep = (req,res)=>{
+    getDoctorsByDepartment(req.params.id).then((response)=>{
+        res.status(200).json(response)
+    }).catch((err)=>res.status(500))
+}
+
+export const getDoctors = (req,res)=>{
+    getAllDoctors().then((response)=>{
         res.status(200).json(response)
     }).catch((err)=>res.status(500))
 }

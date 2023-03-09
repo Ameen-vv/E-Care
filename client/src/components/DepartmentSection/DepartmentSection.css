@@ -2,7 +2,7 @@
 .department-name{
     font-size: 1.1rem;
     color: #00468b;
-    font-weight: 700;
+    font-weight: 600;
     text-transform: uppercase;
 }
 .department-heading{
@@ -21,4 +21,10 @@
     .card-class{
         justify-content: center;
     }
+}
+.department-subheading{
+    font-size: 1.2rem;
+    color: #00468b;
+    font-weight: 700;
+    text-transform: uppercase;      
 }

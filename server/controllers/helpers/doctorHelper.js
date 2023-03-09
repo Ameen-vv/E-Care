@@ -181,7 +181,6 @@ export const editDocProfile = (details,doctorId)=>{
     console.log('entered');
     return new Promise((resolve,reject)=>{
         doctorModel.findOneAndUpdate({_id:doctorId},{$set:details}).then((doctor)=>{
-            console.log(doctor);
             doctor ? (response.status = true) : (response.status = false)
             resolve(response)
         }).catch((err)=>console.log(err))
@@ -241,5 +240,19 @@ export const deleteTimeSlot = (data,id)=>{
             result.acknowledged ? status.status = true : status.status = false
             resolve(status)
         }).catch((err)=>console.log(err))
+    })
+}
+
+export const editDocProfilePic = (image,id)=>{
+    return new Promise((resolve,reject)=>{
+        cloudinary.uploader.upload(image,{upload_preset:'Ecare'}).then((res)=>{
+            doctorModel.updateOne({_id:id},{$set:{profilePic:res.secure_url}}).then((result)=>{
+                result.acknowledged ? resolve() : reject()
+            }).catch((err)=>{
+                reject(err)
+            })
+        }).catch((err)=>{
+            reject(err)
+        })
     })
 }

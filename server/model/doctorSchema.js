@@ -63,6 +63,9 @@ const doctorSchema = new Schema({
     priceOffline:{
         type:Number,
         default:400
+    },
+    profilePic:{
+        type:String
     }
 
 })
