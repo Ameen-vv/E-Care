@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { fetchDepartments } from '../../redux/Slices/departmetnSlice';
-import { fetchDoctors } from '../../redux/Slices/doctorSlice';
 import './DepartmentSection.css'
 
 function Test() {
@@ -25,7 +24,7 @@ function Test() {
     <div className='w-full flex justify-center bg-white'>
         <div className="container my-12 mx-auto px-4 md:px-12 lg:w-4/5 sm:w-full  ">
           <div className="flex flex-wrap -mx-1 lg:-mx-4 card-class ">
-          <div className='ms-4 w-full justify-start flex department-subheading mt-5  w-3/4 mb-3'><h1 className=''>Top Departments</h1></div>
+          {/* <div className='ms-4 w-full justify-start flex department-subheading mt-5  w-3/4 mb-3'><h1 className=''>Top Departments</h1></div> */}
             {departments.departments.slice(0,itemsCount).map((Department,index) => (
               <div key={index} className="my-1 px-2 w-full md:w-1/2 lg:my-4 lg:px-3 lg:w-1/3  xl:w-1/4 cursor-pointer hover:scale-105 ease-in-out duration-200">
                 <article className="overflow-hidden rounded-lg shadow-lg bg-white hover:bg-blue-50 h-[auto]">

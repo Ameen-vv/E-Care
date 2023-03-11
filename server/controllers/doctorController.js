@@ -1,124 +1,279 @@
-import doctorModel from "../model/doctorSchema.js";
-// import bcrypt from 'bcrypt'
-// import {generateToken} from '../jwtAuth/generateJwt.js'
-import  jwt  from "jsonwebtoken"
-import { 
-    doctorOtp, 
-    doctorSignIn, 
-    getDepartmentDetails, 
-    rejectedDetail, 
-    resendingOtp, 
-    reSubmit, 
-    signingUp, 
-    doctorDetails, 
-    editDocProfile, 
-    editTimeSlots, 
-    deleteTimeSlot, 
-    editDocProfilePic } from "./helpers/doctorHelper.js";
+import doctorModel from '../model/doctorSchema.js'
+import bcrypt from 'bcrypt'
+import jwt from "jsonwebtoken"
+import otpGenerator from '../otpGenerator/otpGenerator.js'
+import { generateToken } from '../jwtAuth/generateJwt.js'
+import sendMail from '../nodeMailer/nodeMailer.js'
+import cloudinary from '../utils/cloudinary.js'
+import departmentModel from '../model/departmentModel.js'
+let verifyOtp
+import {
+    deleteTimeSlot,
+    editDocProfilePic
+} from "./helpers/doctorHelper.js";
+import {checkSlots} from './helpers/helpers.js'
 
 
-export const sendOtp=  (req, res) => {
-    doctorOtp(req.body.doctorEmail).then((response)=>{
-        res.status(200).json(response)
-    })
-}
-export const doctorSignUp = (req,res)=>{
-    signingUp(req.body.doctorData,req.body.otp,req.body.imageData).then((response)=>{
-        res.status(200).json(response)
-    })
-}
-
-export const resendOtp = (req,res)=>{
-    resendingOtp(req.body.email).then((response)=>{
-        res.status(200).json(response)
-    })
-}
-export const SignIn =async (req, res) => {
-    doctorSignIn(req.body).then((response)=>{
-        res.status(200).json(response)
-    }).catch((err)=>{
-        console.log(err)
-        res.status(404)
-    })
-}
-
-export const doctorAuth = (req,res)=>{
-    let token = req.headers.authorization
-    let response = {}
-    if(token){
-        jwt.verify(token,process.env.TOKEN_SECRET,async(err,result)=>{
-            if(!err){
-                let user = await  doctorModel.findOne({_id:result.doctorId})
-                if(user){
-                    if(!user.block){
-                        response.user = true
-                        res.status(200).json(response)
-                    }else{
-                        response.user = false
-                        res.status(200).json(response)
-                    }
-                }else{
-                    response.user = false
-                    res.status(200).json(response)
-                }
-            }else{
-                response.user = false
+export const sendOtp = (req, res) => {
+    try {
+        let response = {}
+        let email = req.body.doctorEmail
+        doctorModel.findOne({ email: email }).then((result) => {
+            if (result) {
+                response.userExist = true
                 res.status(200).json(response)
+            } else {
+                otpGenerator().then((otp) => {
+                    verifyOtp = otp
+                    sendMail(email, otp).then((mail) => {
+                        if (mail.otpSent) {
+                            res.status(200).json(response)
+                        } else {
+                            res.status(500)
+                        }
+                    })
+                })
             }
         })
-    }else{
-        response.user = false
-        res.status(200).json(response)
-        console.log('error');
+    } catch (err) {
+        res.status(500)
     }
 }
 
-export const rejectedUser = (req,res)=>{
-    rejectedDetail(req.params.id).then((response)=>{
+
+export const doctorSignUp = (req, res) => {
+    try {
+        let response = {}
+        let doctor = req.body.doctorData
+        const otp = req.body.otp
+        const image = req.body.imageData
+        if (otp === verifyOtp) {
+            cloudinary.uploader.upload(image, { upload_preset: 'Ecare' }).then((result) => {
+                bcrypt.hash(doctor.password, 10).then((hash) => {
+                    doctor.password = hash
+                    doctor.licenseUrl = result.secure_url
+                    const newDoctor = new doctorModel(doctor)
+                    newDoctor.save().then(() => {
+                        response.signUp = true
+                        res.status(200).json(response)
+                    })
+                })
+            })
+
+        } else {
+            res.status(200).json(response)
+        }
+    } catch (err) {
+        res.status(500)
+    }
+}
+
+
+export const resendOtp = (req, res) => {
+    try {
+        let response = {}
+        let email = req.body.email
+        otpGenerator().then((otp) => {
+            verifyOtp = otp
+            sendMail(email, otp).then((result) => {
+                if (result.otpSent) {
+                    response.otpSent = true
+                    res.status(200).json(response)
+                } else {
+                    res.status(500)
+                }
+            })
+        })
+    } catch (err) {
+        res.status(500)
+    }
+}
+
+
+export const SignIn = (req, res) => {
+    try {
+        let response = {}
+        const { email, password } = req.body
+        doctorModel.findOne({ email: email }).then((doctor) => {
+            if (doctor) {
+                if (!doctor.block) {
+                    bcrypt.compare(password, doctor.password, (err, result) => {
+                        if (result) {
+                            if (doctor.verification === "success") {
+                                const token = generateToken({ doctorId: doctor._id, doctorName: doctor.fullName, type: 'doctor' })
+                                response.token = token
+                                response.status = 'success'
+                                res.status(200).json(response)
+
+                            } else if (doctor.verification === "pending") {
+                                response.status = 'pending'
+                                res.status(200).json(response)
+                            } else {
+                                response.status = 'rejected'
+                                response.id = doctor._id
+                                res.status(200).json(response)
+                            }
+                        } else if (err) {
+                            res.status(500)
+                        }
+                        else {
+                            response.status = 'error'
+                            res.status(200).json(response)
+                        }
+                    })
+                } else {
+                    response.status = 'block'
+                    res.status(200).json(response)
+                }
+            } else {
+                response.status = 'noUser'
+                res.status(200).json(response)
+            }
+        })
+    } catch (err) {
+        res.status(500)
+    }
+
+}
+
+export const doctorAuth = (req, res) => {
+    let token = req.headers.authorization
+    try {
+        if (token) {
+            jwt.verify(token, process.env.TOKEN_SECRET, async (err, result) => {
+                if (!err) {
+                    let user = await doctorModel.findOne({ _id: result.doctorId })
+                    if (user) {
+                        if (!user.block) {
+                            res.status(200).json({ authorization: true })
+                        } else {
+                            res.status(401).json({ authorization: false })
+                        }
+                    } else {
+                        res.status(401).json({ authorization: false })
+                    }
+                } else {
+                    res.status(401).json({ authorization: false })
+                }
+            })
+        } else {
+            res.status(401).json({ authorization: false })
+        }
+    } catch (err) {
+        res.status(500)
+    }
+
+}
+
+export const rejectedUser = (req, res) => {
+    try {
+        let doctorId = req.params.id
+        let response = {}
+        doctorModel.findOne({ _id: doctorId }).then((doctor) => {
+            response.details = doctor?.rejectReason
+            response.status = true
+            res.status(200).json(response)
+        })
+    } catch (err) {
+        res.status(500)
+    }
+}
+
+export const resendApplication = (req, res) => {
+    try {
+        let doctorId = req.params.id
+        doctorModel.updateOne({ _id: doctorId }, { $set: { verification: 'pending' } }).then((doctor) => {
+            doctor.acknowledged ? res.status(200).json({ status: true }) : res.status(200).json({ status: false })
+        })
+    } catch (err) {
+        res.status(500)
+    }
+}
+
+export const getDepartment = (req, res) => {
+    try {
+        departmentModel.find({}).then((departments) => {
+            res.status(200).json(departments)
+        })
+    } catch (err) {
+        res.status(500)
+    }
+}
+
+export const getDocDetails = (req, res) => {
+    let token = req.headers.authorization
+    try {
+        jwt.verify(token, process.env.TOKEN_SECRET, (err, result) => {
+            if (err) {
+                res.status(500)
+            } else {
+                doctorModel.findOne({ _id: result.doctorId }).populate('department').then((doctor) => {
+                    res.status(200).json(doctor)
+                })
+            }
+        })
+    } catch (err) {
+        res.status(500)
+    }
+}
+
+export const editProfile = (req, res) => {
+    try {
+        let response = {}
+        let details = req.body.doctorData
+        let token = req.headers.authorization
+        jwt.verify(token, process.env.TOKEN_SECRET, (err, result) => {
+            if (err) {
+                res.status(500)
+            } else {
+                doctorModel.updateOne({ _id: result.doctorId }, { $set: details }).then((update) => {
+                    update.acknowledged ? response.status = true : response.status = false
+                    res.status(200).json(response)
+                })
+            }
+        })
+    } catch (err) {
+        res.status(500)
+    }
+}
+
+export const timeSlots = (req, res) => {
+    try {
+        let response = {}
+        let slots = req.body.timeData
+        let token = req.headers.authorization
+        jwt.verify(token, process.env.TOKEN_SECRET, (err, result) => {
+            if (err) {
+                res.status(500)
+            } else {
+                checkSlots(slots, result.doctorId).then((check) => {
+                    if (check.status) {
+                        doctorModel.updateOne({ _id: result.doctorId }, { $push: { timings: slots } }).then((update) => {
+                          update.acknowledged ?  response.status = true : response.status = false 
+                          res.status(200).json(response)
+                        })
+                    } else {
+                        response.status = false
+                        res.status(200).json(response)
+                    }
+                })
+            }
+        })
+
+    } catch (err) {
+        res.status(500)
+    }
+}
+
+export const deleteSlot = (req, res) => {
+    deleteTimeSlot(req.body.data, req.params.id).then((response) => {
         res.status(200).json(response)
-    }).catch(()=>res.status(404))
+    }).catch((err) => res.status(500).json({ status: false }))
 }
 
-export const resendApplication = (req,res)=>{
-    reSubmit(req.params.id).then((response)=>{
-        res.status(200).json(response)
-    }).catch(()=>res.status(404))
-}
-
-export const getDepartment = (req,res)=>{
-    getDepartmentDetails().then((response)=>{
-        res.status(200).json(response.departments)
-    }).catch((err)=>res.status(404))
-}
-
-export const getDocDetails = (req,res)=>{
-  let token = req.headers.authorization
-  doctorDetails(token).then((response)=>{
-    res.status(200).json(response.doctor)
-  }).catch((err)=>res.status(500).json({status:false}))
-}
-
-export const editProfile = (req,res)=>{
-    editDocProfile(req.body.doctorData,req.params.id).then((response)=>{
-        res.status(200).json(response)
-    }).catch((err)=>res.status(500))
-}
-
-export const timeSlots = (req,res)=>{
-    editTimeSlots(req.body.timeData,req.params.id).then((response)=>{
-           res.status(200).json(response) 
-    }).catch((err)=>res.status(500).json({status:false}))
-}
-
-export const deleteSlot = (req,res)=>{
-    deleteTimeSlot(req.body.data,req.params.id).then((response)=>{
-        res.status(200).json(response)
-    }).catch((err)=>res.status(500).json({status:false}))
-}
-
-export const editProfilePic = (req,res)=>{
-    editDocProfilePic(req.body.imageData,req.params.id).then(()=>{
-        res.status(200).json({status:true})
-    }).catch((err)=>res.status(500))    
+export const editProfilePic = (req, res) => {
+    editDocProfilePic(req.body.imageData, req.params.id).then(() => {
+        res.status(200).json({ status: true })
+    }).catch((err) => res.status(500))
 }
 

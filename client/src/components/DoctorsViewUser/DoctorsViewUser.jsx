@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const List = ({data}) => {
   const [itemsCount,setItemsCount] = useState(4)
+  const location = useLocation()
+  console.log(location?.state?.departmentId);
   const Doctors = [
     {
       Name: "demo",
@@ -125,10 +127,11 @@ const List = ({data}) => {
               </div>
             ))}
             <div className={`w-full flex justify-center mt-2 `} >
-              <button className={`btn bg-mainColor text-white hover:bg-secColor focus:bg-mainColor  text-xs ${Doctors.length<=itemsCount ? 'hidden': ''} me-2`}
-               onClick={()=>setItemsCount(itemsCount=>itemsCount+4)}>Load More</button>
-               <button className={`btn bg-mainColor text-white hover:bg-secColor focus:bg-mainColor  text-xs ${itemsCount === 4 ? 'hidden': ''}`}
+            <button className={`btn bg-mainColor text-white hover:bg-secColor focus:bg-mainColor  text-xs ${itemsCount === 4 ? 'hidden': ''} me-2`}
               onClick={()=>setItemsCount(itemsCount=>itemsCount-4)}>Show Less</button>
+              <button className={`btn bg-mainColor text-white hover:bg-secColor focus:bg-mainColor  text-xs ${Doctors.length<=itemsCount ? 'hidden': ''} `}
+               onClick={()=>setItemsCount(itemsCount=>itemsCount+4)}>Load More</button>
+               
                </div>
           </div>
         </div>

@@ -32,11 +32,12 @@ nav a {
 	text-decoration: none;
     font-size: 13px;
 	font-weight: lighter;
+	cursor: pointer;
     
 }
 
 nav a:hover {
-	color: var(--secondaryColor);
+	color: #00468b;
 }
 
 header .nav-btn {

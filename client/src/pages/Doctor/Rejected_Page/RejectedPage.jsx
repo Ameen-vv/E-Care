@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
+import { toast, Toaster } from 'react-hot-toast';
 import { FaRegClock } from "react-icons/fa"; // import clock icon from react-icons/fa
 import {  useNavigate,useLocation } from 'react-router-dom';
 import { doctorUrl } from '../../../../apiLinks/apiLinks';
@@ -9,22 +10,20 @@ function RejectedPage() {
    const Navigate = useNavigate()
    const location = useLocation()
    const [reason,setReason] = useState('')
-   const [err,setErr] = useState(false)
    useEffect(()=>{
         axios.get(`${doctorUrl}rejectedUser/${location.state.id}`).then((response)=>{
-            response.status === 200 ? setReason(response.data.details) :
-            setErr(true)
-        })
+            response.status === 200 && setReason(response.data.details)          
+        }).catch(()=>toast.error('internal error please try after sometime'))
    },[])
    const resendApplication = ()=>{
     axios.get(`${doctorUrl}resendForm/${location.state.id}`).then((response)=>{
-        response.status === 200 ? Navigate('/doctor/verification')
-        : setErr(true)
-    })
+        response.status === 200 && (response.data.status ? Navigate('/doctor/verification') : toast.error('cannot resend please try after sometime'))
+    }).catch(()=>toast.error('internal error please try after sometime'))
    } 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-      {!err ? <div className="bg-white p-6 rounded-md shadow-md flex flex-col items-center justify-center space-y-6">
+      <Toaster/>
+       <div className="bg-white p-6 rounded-md shadow-md flex flex-col items-center justify-center space-y-6">
         <div className="text-5xl text-blue-500">
           <FaRegClock />
         </div>
@@ -43,7 +42,7 @@ function RejectedPage() {
         >
           Resend the application
         </button>
-      </div> : <ErrorPage/>}
+      </div>
     </div>
   )
 }

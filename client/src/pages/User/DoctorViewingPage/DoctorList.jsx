@@ -6,7 +6,7 @@ import Footer from '../../../components/Footer/Footer'
 import Header from '../../../components/Header/Header'
 import { fetchDoctors } from '../../../redux/Slices/doctorSlice'
 
-function DoctorList() {
+const DoctorList = ()=> {
   const location = useLocation()
   let result = useSelector(state=>state.doctor)
   const dispatch = useDispatch()

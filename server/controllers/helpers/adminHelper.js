@@ -37,7 +37,7 @@ export const unBlockingUser = (userId)=>{
 
 export const gettingDoctors = ()=>{
     return new Promise((resolve,reject)=>{
-        doctorModel.find({verification:'success'}).then((result)=>{
+        doctorModel.find({verification:'success'}).populate('department').then((result)=>{
             console.log(result);
             resolve(result)
         })

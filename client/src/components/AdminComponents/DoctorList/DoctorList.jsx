@@ -46,19 +46,24 @@ function DoctorList() {
             field: 'phone',
             headerName: 'Phone',
             sortable: false,
-            width: 200,
+            width: 150,
         },
         {
             field: 'qualification',
             headerName: 'qualification',
             sortable: false,
-            width: 200,
+            width: 100,
         },
         {
             field: 'department',
             headerName: 'Department',
             sortable: false,
             width: 200,
+            renderCell:(params)=>{
+                return(
+                    <p>{params.value.name}</p>
+                )
+            }
         },
         {
             field: 'block',

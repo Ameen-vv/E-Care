@@ -6,17 +6,16 @@ import { userUrl, doctorUrl } from '../../../apiLinks/apiLinks'
 import { toast, Toaster } from 'react-hot-toast'
 
 
-function SignUpForm() {
+const SignUpForm = () => {
     const Navigate = useNavigate()
     const [signUpForm, setSignUpForm] = useState('client')
     const [fullName, setFullName] = useState('')
     const [phone, setPhone] = useState('')
-    const [image,setImage] = useState('')
+    const [image, setImage] = useState('')
     const [email, setEmail] = useState('')
     const [dateOfBirth, setDateOfBirth] = useState()
     const [password, setPassword] = useState('')
     const [confirmPass, setConfirmPass] = useState('')
-    const [confirmPassErr, setConfirmPassErr] = useState(false)
     const [doctorFullname, setDoctorFullName] = useState('')
     const [doctorEmail, setDoctorEmail] = useState('')
     const [doctorPhone, setDoctorPhone] = useState('')
@@ -27,22 +26,19 @@ function SignUpForm() {
     const [doctorPassword, setDoctorPassword] = useState('')
     const [doctorDepartment, setDoctorDepartment] = useState('')
     const [doctorConfirmPass, setDoctorConfirmPass] = useState('')
-    const [userExist, setUserExist] = useState(false)
-    const [doctorExist, setDoctorExist] = useState(false)
     const [otp, setOtp] = useState('')
-    const [otpErr, setOtpErr] = useState(false)
     const [minutes, setMinutes] = useState(0);
     const [seconds, setSeconds] = useState(30);
-    const [loading,setLoading] = useState(false)
-    const [serverErr,setServerErr] = useState(false)
-    const [departmentDetails,setDepartmentDetails] = useState([])
+    const [loading, setLoading] = useState(false)
+    const [departmentDetails, setDepartmentDetails] = useState([])
+
+
     useEffect(() => {
         if (signUpForm === 'otp' || signUpForm === 'doctor-otp') {
             const interval = setInterval(() => {
                 if (seconds > 0) {
                     setSeconds(seconds - 1);
                 }
-
                 if (seconds === 0) {
                     if (minutes === 0) {
                         clearInterval(interval);
@@ -57,21 +53,19 @@ function SignUpForm() {
                 clearInterval(interval);
             };
         }
-    
-
-
-
     }, [seconds, signUpForm])
 
-    useEffect(()=>{
-        console.log('gvhasd')
-       if(signUpForm === 'doctor'){
-        setLoading(true)
-        axios.get(`${doctorUrl}getDepartments`).then((response)=>{
-            response.status === 200 ? setDepartmentDetails(response.data) : toast.error('some unexpected errors please try after some time')
-        }).finally(()=>setLoading(false)).catch((err)=>console.log(err))
-       }
-    },[signUpForm])
+
+    useEffect(() => {
+        if (signUpForm === 'doctor') {
+            setLoading(true)
+            axios.get(`${doctorUrl}getDepartments`).then((response) => {
+                response.status === 200 && setDepartmentDetails(response.data)
+            }).catch(() => {
+                toast.error('some unexpected errors please try after some time')
+            }).finally(() => setLoading(false))
+        }
+    }, [signUpForm])
 
     const userData = {
         fullName,
@@ -80,6 +74,7 @@ function SignUpForm() {
         dateOfBirth,
         password
     }
+
     const doctorData = {
 
         fullName: doctorFullname,
@@ -93,22 +88,18 @@ function SignUpForm() {
         department: doctorDepartment
 
     }
+
     const sentOtp = (e) => {
         e.preventDefault()
         if (password === confirmPass) {
-            setConfirmPassErr(false)
             setLoading(true)
             axios.post(`${userUrl}getOtp`, userData).then((response) => {
-                setLoading(false)
-                if (response.data.status) {
-                    setUserExist(false)
-                    setSignUpForm('otp')
-                } else {
-                    setUserExist(true)
-                }
-            })
+                response.data.userExist ? toast.error('User Already Exist') : setSignUpForm('otp')
+            }).catch((err) => {
+                toast.error('some unexpected errors please try after some time')
+            }).finally(() => setLoading(false))
         } else {
-            setConfirmPassErr(true)
+            toast.error("Passwords doesnt match")
         }
     }
 
@@ -116,77 +107,68 @@ function SignUpForm() {
         e.preventDefault()
         setLoading(true)
         axios.post(`${userUrl}signUp`, { userData, otp }).then((response) => {
-            setLoading(false)
-            response.data.status ? Navigate('/signIn') : setOtpErr(true)
-        })
+            response.data.status ? Navigate('/signIn') : toast.error('Incorrect otp')
+        }).catch(() => {
+            toast.error('some unexpected errors please try after some time')
+        }).finally(() => setLoading(false))
     }
+
     const resendOtp = () => {
         setMinutes(0)
         setSeconds(30)
-        console.log(email);
         axios.post(`${userUrl}resendOtp`, { email }).then((response) => {
-            if (response.data.status) {
-                console.log('otpSent');
-            }
+            response.data.status && toast.success('otp has sent to email')
         })
     }
-    const doctorSignUp = async(e) => {
+
+    const doctorSignUp = async (e) => {
         e.preventDefault()
         setLoading(true)
         let imageData
         const reader = new FileReader()
         reader.readAsDataURL(image)
-        reader.onloadend = () => {
+        reader.onloadend = () => {          
             imageData = reader.result
-            console.log(imageData);
-            axios.post(`${doctorUrl}signUp`, { doctorData, otp,imageData}).then((response) => {
-              if(response.status === 200) { 
-                setLoading(false)
-                response.data.status ? Navigate('/signIn') : setOtpErr(true)
-            }else{
-                setServerErr(true)
-            }
-            })
-            
+            axios.post(`${doctorUrl}signUp`, { doctorData, otp, imageData }).then((response) => {                
+                response.data.signUp ? Navigate('/signIn') : toast.error('Invalid otp')
+            }).catch(()=>{
+                toast.error('some unexpected errors please try after some time')
+            }).finally(() => setLoading(false))
         }
-        
 
     }
+
     const doctorOtp = (e) => {
         e.preventDefault()
         if (doctorConfirmPass === doctorPassword) {
             setLoading(true)
             axios.post(`${doctorUrl}getOtp`, { doctorEmail }).then((response) => {
-                setLoading(false)
-                if (response.data.status) {
-                    setDoctorExist(false)
-                    setSignUpForm('doctor-otp')
-                } else {
-                    setDoctorExist(true)
-                }
-            })
+                !response.data.userExist ? setSignUpForm('doctor-otp') : toast.error("Email Already Exists")
+            }).catch(()=>{
+                toast.error('some unexpected errors please try after some time')
+            }).finally(() => setLoading(false))
         } else {
-            setConfirmPassErr(true)
+            toast.error("Passwords doesnt match")
         }
     }
+
     const resendOtpForDr = () => {
         setMinutes(0)
         setSeconds(30)
-        console.log(email);
         axios.post(`${doctorUrl}resendOtp`, { doctorEmail }).then((response) => {
-            if (response.data.status) {
-                console.log('otpSent');
-            }
+            response.data.otpSent && toast.success('Otp has sent to email')
+        }).catch(()=>{
+            toast.error('some unexpected errors please try after some time')
         })
     }
 
 
     return (
         <section className="bg-white dark:bg-gray-900">
-            <Toaster/>
+            <Toaster />
             {loading && <div className="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
                 <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
-            </div> } <div className="flex justify-center min-h-screen">
+            </div>} <div className="flex justify-center min-h-screen">
                 <div className="hidden bg-cover lg:block lg:w-2/5" style={{ backgroundImage: "url('/images/Banner.jpg')" }}>
                 </div>
 
@@ -239,10 +221,6 @@ function SignUpForm() {
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400">Email address</label>
                                     <input type="email" placeholder="johnsnow@example.com" onChange={(e) => setEmail(e.target.value)} required className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
-                                    {
-                                        userExist && <p className='text-danger'>Email already Exists</p>
-
-                                    }
                                 </div>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400">DOB</label>
@@ -259,9 +237,6 @@ function SignUpForm() {
                                     <input type="password" placeholder="Enter your password" onChange={(e) => {
                                         setConfirmPass(e.target.value)
                                     }} required className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
-                                    {
-                                        confirmPassErr && <p className='text-danger'>Incorrect Password</p>
-                                    }
                                 </div>
 
                                 <button
@@ -289,10 +264,6 @@ function SignUpForm() {
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400 ">Email address</label>
                                     <input type="email" placeholder="johnsnow@example.com" required onChange={(e) => setDoctorEmail(e.target.value)} className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
-                                    {
-                                        doctorExist && <p className='text-danger'>Email already Exists</p>
-
-                                    }
                                 </div>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400 ">DOB</label>
@@ -307,8 +278,8 @@ function SignUpForm() {
                                     <select onChange={(e) => setDoctorDepartment(e.target.value)} required className="block w-full px-5 py-3 mt-2 text-black-800 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40">
                                         <option value="">Select department</option>
                                         {
-                                            departmentDetails.map((department)=>{
-                                              return  <option value={department._id} key={department._id}>{department.name}</option>
+                                            departmentDetails.map((department) => {
+                                                return <option value={department._id} key={department._id}>{department.name}</option>
                                             })
                                         }
                                     </select>
@@ -324,7 +295,7 @@ function SignUpForm() {
                                 </div>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400">Upload Certificates</label>
-                                    <input type="file" onChange={(e)=>setImage(e.target.files[0])} placeholder="MBBS,MD, etc" className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="file" onChange={(e) => setImage(e.target.files[0])} placeholder="MBBS,MD, etc" className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
                                 </div>
 
                                 <div>
@@ -335,9 +306,6 @@ function SignUpForm() {
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400 ">Confirm password</label>
                                     <input type="password" placeholder="Enter your password" onChange={(e) => setDoctorConfirmPass(e.target.value)} className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
-                                    {
-                                        confirmPassErr && <p className='text-danger'>Incorrect Password</p>
-                                    }
                                 </div>
 
                                 <button
@@ -358,10 +326,6 @@ function SignUpForm() {
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400">Otp</label>
                                     <input type="text" required placeholder="XXX-XXX" className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" onChange={(e) => setOtp(e.target.value)} />
-                                    {
-                                        otpErr && <p className='text-danger'>Incorrect Otp</p>
-                                    }
-
                                 </div>
 
                                 <button
@@ -381,7 +345,7 @@ function SignUpForm() {
                                             {seconds < 10 ? `0${seconds}` : seconds}
                                         </p>
                                     ) : (
-                                        <p className='text-primary' onClick={resendOtp} style={{ cursor: 'pointer' }}>Resend Otp</p>
+                                        <p className='text-primary text-sm' onClick={resendOtp} style={{ cursor: 'pointer' }}>Resend Otp</p>
                                     )}
                                 </div>
                             </form>
@@ -392,10 +356,6 @@ function SignUpForm() {
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400">Otp</label>
                                     <input type="text" required placeholder="XXX-XXX" className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" onChange={(e) => setOtp(e.target.value)} />
-                                    {
-                                        otpErr && <p className='text-danger'>Incorrect Otp</p>
-                                    }
-
                                 </div>
 
                                 <button
@@ -420,9 +380,6 @@ function SignUpForm() {
                                 </div>
                             </form>
                         }
-
-
-                        {serverErr && <p className='mt-2 text-danger'>some unexpected error please try again after some time</p>}
 
                     </div>
                 </div>

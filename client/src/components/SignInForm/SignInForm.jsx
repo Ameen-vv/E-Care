@@ -6,7 +6,7 @@ import { userUrl, doctorUrl } from '../../../apiLinks/apiLinks'
 import { firebaseContext, userContext } from '../../store/Contexts'
 import { toast, Toaster } from 'react-hot-toast'
 
-function SignInForm() {
+const SignInForm = () => {
     const [signInForm, setSignInForm] = useState('client')
     const Navigate = useNavigate()
     const {user,SetUser} = useContext(userContext)
@@ -15,7 +15,6 @@ function SignInForm() {
     const [password, setPassword] = useState('')
     const [doctorEmail, setDoctorEmail] = useState('')
     const [doctorPass, setDoctorPass] = useState('')
-    // const [userErr, setUserErr] = useState(false)
     const [reject, setReject] = useState(false)
     const [gErr, setGerr] = useState(false)
     const [otp, setOtp] = useState('')
@@ -39,15 +38,16 @@ function SignInForm() {
         e.preventDefault()
         setLoading(true)
         axios.post(`${userUrl}signIn`, userData).then((response) => {
-            if (response.data.status) {
-                if (response.data.token) {
-                    localStorage.setItem('userToken',response.data.token)
-                }
+            if (response.data.logIn) {                
+                localStorage.setItem('userToken',response.data?.token)
                 SetUser('user')
                 Navigate('/')
-            } else {
-                toast.error('invalid username or password')
             }
+            response.data.incPass && toast.error('Invalid password')
+            response.data.block  &&  toast.error('Your acount is blocked')
+            response.data.noUser && toast.error('No user in this email please sign up')
+        }).catch(()=>{
+            toast.error('some unexpected errors please try after some time')
         }).finally(()=>{
             setLoading(false)
         })
@@ -64,7 +64,11 @@ function SignInForm() {
             }
             response.data.status === 'pending' && Navigate('/doctor/verification')
             response.data.status === 'rejected' && Navigate('/doctor/rejected',{state:{id:response.data.id}})
-            response.data.status === 'error' &&  toast.error('invalid username or password')
+            response.data.status === 'error' &&  toast.error('invalid password')
+            response.data.status === 'noUser' && toast.error('no user with this email')
+            response.data.status === 'block' && toast.error('Your acount is blocked')
+        }).catch(()=>{
+            toast.error('some unexpected errors please try after some time')
         }).finally(()=>setLoading(false))
 
     }
@@ -72,9 +76,10 @@ function SignInForm() {
         e.preventDefault()
         setLoading(true)
         axios.post(`${userUrl}forgotPass`, { email }).then((response) => {
-            if (response.data.status) {
-                setSignInForm('reset-pass')
-            } else { toast.error('invalid email') }
+            response.data.otpSent ? setSignInForm('reset-pass') : (response.data.userErr ? toast.error('invalid email') :
+             toast.error('sending otp failed'))             
+        }).catch(()=>{
+            toast.error('some unexpected errors please try after some time')
         }).finally(()=>setLoading(false))
 
     }
@@ -82,19 +87,22 @@ function SignInForm() {
         e.preventDefault()
         setLoading(true)
         axios.post(`${userUrl}resetPass`, { otp, email, password }).then((response) => {
-            response.data.status ? setSignInForm('client') : toast.error('invalid otp')
-        }).finally(()=>setLoading(true))
+            response.data.reset ? setSignInForm('client') : toast.error('invalid otp')
+        }).catch(()=>{
+            toast.error('some unexpected errors please try after some time')
+        }).finally(()=>setLoading(false))
     }
     const googleLogin = () => {
         signInWithGoogle().then((result) => {
             setLoading(true)
             axios.post(`${userUrl}googleUserDetails`, result.user).then((response) => {
-                if (response.data.status) {
-                    document.cookie = `token=${response.data.token}`
+                if (response.data.logIn) {
+                    localStorage.setItem('doctorToken',response.data.token)
                     Navigate('/')
-                } else {
-                    setGerr(true)
                 }
+                response.data.block && toast.error('your acount is blocked')
+            }).catch((err)=>{
+                toast.error('some unexpected errors please try after some time')
             }).finally(()=>setLoading(false))
         })
     }
@@ -163,8 +171,7 @@ function SignInForm() {
                                     </svg>
                                 </button>
 
-                                {/* {userErr &&
-                                    <p className='text-danger'>Invalid username or password</p>} */}
+                               
 
                                </form>
                                 <button

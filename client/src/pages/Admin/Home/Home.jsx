@@ -140,7 +140,7 @@ function AdminHome() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" style={{color:'black'}}>
-            E care
+            <img src="\images\e-care-high-resolution-logo-color-on-transparent-background (1).png" alt="" width={80} height={80} />
           </Typography>
         </Toolbar>
       </AppBar>
@@ -151,6 +151,7 @@ function AdminHome() {
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
+            
           },
         }}
         variant="persistent"
@@ -191,7 +192,13 @@ function AdminHome() {
       </Drawer>
       <Main  open={open}>
       <DrawerHeader />
-      <h1>{path}</h1>
+      <h1 className='department-subheading ml-2 mt-3 mb-3'>
+        {path === 'users' && 'Users'}
+        {path === 'doctors' && 'Doctors'}
+        {path === 'newDoctors' && 'New Doctors'}
+        {path === 'addDepartment' && 'Add Department'}
+        {path === 'departments' && 'Departments'}
+        </h1>
       <div className='home-container'>
         
         {path === 'users' && <Table/>}

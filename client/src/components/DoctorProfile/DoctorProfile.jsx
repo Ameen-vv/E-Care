@@ -28,11 +28,12 @@ const DoctorProfile = () => {
     const [priceOnline, setPriceOnline] = useState('')
     const [priceOffline, setPriceOffline] = useState('')
     const [loading, setLoading] = useState(false)
+    let token = localStorage.getItem('doctorToken')
 
     const Navigate = useNavigate()
     useEffect(() => {
         setLoading(true)
-        const token = localStorage.getItem('doctorToken')
+        token = localStorage.getItem('doctorToken')
         const headers = { Authorization: token }
         axios.get(`${doctorUrl}getDocDetails`, { headers }).then((response) => {
             response.status === 200 && SetDocDetails(response.data)
@@ -73,13 +74,13 @@ const DoctorProfile = () => {
             priceOnline: priceOnline === '' ? docDetails?.priceOnline : priceOnline,
             priceOffline: priceOffline === '' ? docDetails?.priceOffline : priceOffline
         }
-        const token = localStorage.getItem('doctorToken')
-        axios.post(`${doctorUrl}editProfile/${docDetails?._id}`, { token, doctorData }).then((response) => {
+        const headers = {Authorization:token}
+        axios.post(`${doctorUrl}editProfile`, { doctorData },{headers}).then((response) => {
             response.status === 200 && (response.data.status ? toast.success('edited successfully') : toast.error('something went wrong'))
             editFormRef.current.reset()
             response.status === 200 && setResetPage(resetPage => !resetPage)
         }).catch((err) => {
-            (err?.response?.status === 401 ? Navigate('/signIn') : toast.error('something went wrong'))
+            err?.response?.status === 401 ? Navigate('/signIn') : toast.error('something went wrong')
         }).finally(() => setLoading(false))
 
 
@@ -92,10 +93,9 @@ const DoctorProfile = () => {
             startTime,
             endTime,
             slots
-
         }
-        const token = localStorage.getItem('doctorToken')
-        axios.post(`${doctorUrl}editTime/${docDetails?._id}`, { token, timeData }).then((response) => {
+        const headers = {Authorization:token}
+        axios.post(`${doctorUrl}editTime`, { timeData },{headers}).then((response) => {
             response.status === 200 && (response.data.status ? toast.success('added successfully') : toast.error('the timing is already registered'))
             timeFormRef.current.reset()
             response.status === 200 && setResetPage(resetPage => !resetPage)
@@ -111,7 +111,6 @@ const DoctorProfile = () => {
     };
     const deleteSlot = (index) => {
         setLoading(true)
-        const token = localStorage.getItem('doctorToken')
         const headers = { Authorization: token }
         let data = docDetails.timings[index]
         axios.post(`${doctorUrl}deleteSlot/${docDetails._id}`, { data }, { headers }).then((response) => {
@@ -123,7 +122,6 @@ const DoctorProfile = () => {
     }
 
     const editProfilePic = (e)=>{
-        console.log(e.target.files[0]);
         let image = e.target.files[0]
         const reader = new FileReader()
         reader.readAsDataURL(image)
