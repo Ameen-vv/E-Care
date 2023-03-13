@@ -7,11 +7,7 @@ import sendMail from '../nodeMailer/nodeMailer.js'
 import cloudinary from '../utils/cloudinary.js'
 import departmentModel from '../model/departmentModel.js'
 let verifyOtp
-import {
-    deleteTimeSlot,
-    editDocProfilePic
-} from "./helpers/doctorHelper.js";
-import {checkSlots} from './helpers/helpers.js'
+import { checkSlots } from './helpers/helpers.js'
 
 
 export const sendOtp = (req, res) => {
@@ -25,6 +21,7 @@ export const sendOtp = (req, res) => {
             } else {
                 otpGenerator().then((otp) => {
                     verifyOtp = otp
+                    console.log(verifyOtp);
                     sendMail(email, otp).then((mail) => {
                         if (mail.otpSent) {
                             res.status(200).json(response)
@@ -35,7 +32,8 @@ export const sendOtp = (req, res) => {
                 })
             }
         })
-    } catch (err) {
+    }
+    catch (err) {
         res.status(500)
     }
 }
@@ -63,7 +61,8 @@ export const doctorSignUp = (req, res) => {
         } else {
             res.status(200).json(response)
         }
-    } catch (err) {
+    }
+    catch (err) {
         res.status(500)
     }
 }
@@ -84,7 +83,8 @@ export const resendOtp = (req, res) => {
                 }
             })
         })
-    } catch (err) {
+    }
+    catch (err) {
         res.status(500)
     }
 }
@@ -130,11 +130,13 @@ export const SignIn = (req, res) => {
                 res.status(200).json(response)
             }
         })
-    } catch (err) {
+    }
+    catch (err) {
         res.status(500)
     }
 
 }
+
 
 export const doctorAuth = (req, res) => {
     let token = req.headers.authorization
@@ -159,11 +161,13 @@ export const doctorAuth = (req, res) => {
         } else {
             res.status(401).json({ authorization: false })
         }
-    } catch (err) {
+    }
+    catch (err) {
         res.status(500)
     }
 
 }
+
 
 export const rejectedUser = (req, res) => {
     try {
@@ -174,10 +178,12 @@ export const rejectedUser = (req, res) => {
             response.status = true
             res.status(200).json(response)
         })
-    } catch (err) {
+    }
+    catch (err) {
         res.status(500)
     }
 }
+
 
 export const resendApplication = (req, res) => {
     try {
@@ -185,20 +191,24 @@ export const resendApplication = (req, res) => {
         doctorModel.updateOne({ _id: doctorId }, { $set: { verification: 'pending' } }).then((doctor) => {
             doctor.acknowledged ? res.status(200).json({ status: true }) : res.status(200).json({ status: false })
         })
-    } catch (err) {
+    }
+    catch (err) {
         res.status(500)
     }
 }
+
 
 export const getDepartment = (req, res) => {
     try {
         departmentModel.find({}).then((departments) => {
             res.status(200).json(departments)
         })
-    } catch (err) {
+    }
+    catch (err) {
         res.status(500)
     }
 }
+
 
 export const getDocDetails = (req, res) => {
     let token = req.headers.authorization
@@ -212,10 +222,12 @@ export const getDocDetails = (req, res) => {
                 })
             }
         })
-    } catch (err) {
+    }
+    catch (err) {
         res.status(500)
     }
 }
+
 
 export const editProfile = (req, res) => {
     try {
@@ -232,10 +244,12 @@ export const editProfile = (req, res) => {
                 })
             }
         })
-    } catch (err) {
+    }
+    catch (err) {
         res.status(500)
     }
 }
+
 
 export const timeSlots = (req, res) => {
     try {
@@ -249,8 +263,8 @@ export const timeSlots = (req, res) => {
                 checkSlots(slots, result.doctorId).then((check) => {
                     if (check.status) {
                         doctorModel.updateOne({ _id: result.doctorId }, { $push: { timings: slots } }).then((update) => {
-                          update.acknowledged ?  response.status = true : response.status = false 
-                          res.status(200).json(response)
+                            update.acknowledged ? response.status = true : response.status = false
+                            res.status(200).json(response)
                         })
                     } else {
                         response.status = false
@@ -260,20 +274,57 @@ export const timeSlots = (req, res) => {
             }
         })
 
-    } catch (err) {
+    }
+    catch (err) {
         res.status(500)
     }
 }
 
+
 export const deleteSlot = (req, res) => {
-    deleteTimeSlot(req.body.data, req.params.id).then((response) => {
-        res.status(200).json(response)
-    }).catch((err) => res.status(500).json({ status: false }))
+    try {
+        const token = req.headers.authorization
+        const data = req.body.data
+        let response = {}
+
+        jwt.verify(token, process.env.TOKEN_SECRET, (err, doctor) => {
+            if (err) {
+                res.status(500)
+            } else {
+                doctorModel.updateOne({ _id: doctor.doctorId }, { $pull: { timings: data } }).then((result) => {
+                    result.acknowledged ? response.status = true : response.status = false
+                    res.status(200).json(response)
+                })
+            }
+        })
+
+    }
+    catch (err) {
+        res.status(500).json({ status: false })
+    }
+
 }
 
+
 export const editProfilePic = (req, res) => {
-    editDocProfilePic(req.body.imageData, req.params.id).then(() => {
-        res.status(200).json({ status: true })
-    }).catch((err) => res.status(500))
+    try {
+        const token = req.headers.authorization
+        const image = req.body.imageData
+        jwt.verify(token, process.env.TOKEN_SECRET, (err, doctor) => {
+            if (err) {
+                res.status(500)
+            } else {
+                cloudinary.uploader.upload(image,{upload_preset:'Ecare'}).then((imageData)=>{
+                    doctorModel.updateOne({_id:doctor.doctorId},{$set:{profilePic:imageData.secure_url}}).then((result)=>{
+                        result.acknowledged ? res.status(200).json({result:true}) : res.status(500)
+                    })
+                })
+            }
+        })
+        
+    } catch (err) {
+        res.status(500)
+    }
+   
 }
 

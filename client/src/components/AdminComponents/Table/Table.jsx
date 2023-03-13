@@ -8,7 +8,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
 
-function Table() {
+const Table = () => {
     const [userData,setUserData] = useState([])
     const [reload,setReload] = useState(false)
     let token = localStorage.getItem('adminToken')
@@ -19,7 +19,6 @@ function Table() {
          token = localStorage.getItem('adminToken')
         const headers = {authorization:token}
         axios.get(`${adminUrl}getUsers`,{headers}).then((response)=>{
-            console.log(response.data)
             setUserData(response.data)
         }).catch((err)=>{
             err?.response?.status === 401 ? Navigate('/admin') : toast.error('something went wrong')
@@ -29,7 +28,7 @@ function Table() {
     const blockUser = (userId)=>{
         const headers = {authorization:token}
         axios.get(`${adminUrl}blockUser/${userId}`,{headers}).then((response)=>{
-           reload ? setReload(false) : setReload(true)
+           response.status === 200 && setReload(reload=>!reload)
         }).catch((err)=>{
             err?.response?.status === 401 ? Navigate('/admin') : toast.error('something went wrong')
         })
@@ -37,7 +36,7 @@ function Table() {
     const unBlockUser = (userId)=>{
         const headers = {authorization:token}
         axios.get(`${adminUrl}unBlockUser/${userId}`,{headers}).then((response)=>{
-            reload ? setReload(false) : setReload(true)
+            response.status === 200 && setReload(reload=>!reload)
         }).catch((err)=>{
             err?.response?.status === 401 ? Navigate('/admin') : toast.error('something went wrong')
         })

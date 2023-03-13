@@ -295,7 +295,7 @@ const SignUpForm = () => {
                                 </div>
                                 <div>
                                     <label className="block mb-2 text-sm text-gray-400">Upload Certificates</label>
-                                    <input type="file" onChange={(e) => setImage(e.target.files[0])} placeholder="MBBS,MD, etc" className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" />
+                                    <input type="file" onChange={(e) => setImage(e.target.files[0])} placeholder="MBBS,MD, etc" className="block w-full px-5 py-3 mt-2  placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-400 dark:bg-gray-900 dark:text-gray-800 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40" accept="image/*"/>
                                 </div>
 
                                 <div>

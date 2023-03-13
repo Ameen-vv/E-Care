@@ -1,4 +1,3 @@
-import { response } from "express"
 import userModel from "../model/userSchema.js";
 import otpGenerator from "../otpGenerator/otpGenerator.js";
 import sendMail from "../nodeMailer/nodeMailer.js";
@@ -11,36 +10,31 @@ export let otpVerify
 
 
 
-export const sendOtp = async (req, res) => {
+export const sendOtp =  (req, res) => {
     try {
-        let user = req.body
-        let response = {
-            status: null,
-            otpSent: null
-        }
-        const userExist = await userModel.findOne({ email: user.email })
-        if (userExist) {
-            response.userExist = true
-        } else {
-
-            await otpGenerator().then((otp) => {
-                sendMail(user.email, otp).then((result) => {
-                    if (result.otpSent) {
-                        response.userExist = false
-                        otpVerify = otp
-                    } else {
-                        res.status(500)
-                    }
+        let userData = req.body
+        let response = {}
+        userModel.findOne({ email: userData.email }).then((user)=>{
+            if (user) {
+                response.userExist = true
+                res.status(200).json(response)
+            } else {
+                otpGenerator().then((otp) => {
+                    sendMail(userData.email, otp).then((result) => {
+                        if (result.otpSent) {
+                            otpVerify = otp
+                            res.status(200).json(response)
+                        } else {
+                            res.status(500)
+                        }
+                    })
                 })
-            })
-
-
-        }
-        res.status(200).json(response)
+            }
+        })
+        
     } catch (err) {
         res.status(500).json(err)
     }
-
 }
 
 
@@ -235,10 +229,12 @@ export const saveGoogleUser = (req, res) => {
 }
 
 
-export const getDepartment = (req, res) => {
+export const getDepartment = async(req, res) => {
     try {
-        departmentModel.find({ list: true }).then((departments) => {
-            res.status(200).json(departments)
+        let pageNo = req.params.pageNo
+        let count = await departmentModel.countDocuments({list:true})
+        departmentModel.find({ list: true }).limit(pageNo*4).then((departments) => {
+            res.status(200).json({departments,count})
         })
     } catch (err) {
         res.status(500)

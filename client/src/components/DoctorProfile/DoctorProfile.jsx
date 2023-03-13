@@ -31,6 +31,7 @@ const DoctorProfile = () => {
     let token = localStorage.getItem('doctorToken')
 
     const Navigate = useNavigate()
+
     useEffect(() => {
         setLoading(true)
         token = localStorage.getItem('doctorToken')
@@ -41,13 +42,17 @@ const DoctorProfile = () => {
             err?.response?.status === 401 ? Navigate('/signIn') : toast.error('something wrong')
         }).finally(() => setLoading(false))
     }, [resetPage])
+
+
     const handleDayOfWeekChange = (e) => {
         setDay(e.target.value);
     };
 
+
     const handleStartTimeChange = (e) => {
         setStartTime(e.target.value)
     };
+
 
     const handleEndTimeChange = (e) => {
         if (startTime > e.target.value) {
@@ -59,9 +64,12 @@ const DoctorProfile = () => {
         }
     };
 
+
     const handlePriceChange = (e) => {
         setPrice(e.target.value);
     };
+
+
     const editProfile = (e) => {
         e.preventDefault()
         setLoading(true)
@@ -86,6 +94,7 @@ const DoctorProfile = () => {
 
     }
 
+
     const handleSubmit = (e) => {
         e.preventDefault();
         const timeData = {
@@ -109,17 +118,20 @@ const DoctorProfile = () => {
     const handleTabClick = (tabName) => {
         setActiveTab(tabName);
     };
+
+
     const deleteSlot = (index) => {
         setLoading(true)
         const headers = { Authorization: token }
         let data = docDetails.timings[index]
-        axios.post(`${doctorUrl}deleteSlot/${docDetails._id}`, { data }, { headers }).then((response) => {
+        axios.post(`${doctorUrl}deleteSlot`, { data }, { headers }).then((response) => {
             response.status === 200 && (response.data.status ? toast.success('deleted successfully') : toast.error('some unexpected error try again'))
             response.status === 200 && setResetPage(resetPage => !resetPage)
         }).catch((err) => {
             err?.response?.status === 401 ? Navigate('/signIn') : toast.error('something went wrong')
         }).finally(() => setLoading(false))
     }
+
 
     const editProfilePic = (e)=>{
         let image = e.target.files[0]
@@ -129,15 +141,16 @@ const DoctorProfile = () => {
             let imageData = reader.result
             let token = localStorage.getItem('doctorToken')
             const headers = {Authorization:token}
-            axios.post(`${doctorUrl}editProfilePic/${docDetails._id}`,{imageData},{headers}).then((response)=>{
-                response.status === 200 && toast.success('profile pic changed')
+            axios.post(`${doctorUrl}editProfilePic`,{imageData},{headers}).then((response)=>{
                 response.status === 200 && setResetPage(resetPage => !resetPage)
+                response.status === 200 && toast.success('profile pic changed')
 
             }).catch((err)=>{
                 err?.response?.status === 401 ? Navigate('/signIn') : toast.error('something went wrong')
             })
         }
     }
+
 
     const notifications = [{
         id: 1,
@@ -154,6 +167,7 @@ const DoctorProfile = () => {
         message: 'Theres is an appointment on 12-12-2-23 with patient'
     }]
 
+    
     const renderTabContent = () => {
         switch (activeTab) {
             case "profile":

@@ -34,7 +34,7 @@ function Departments() {
     const unListDepartment = (id)=>{
         const headers = {Authorization:token}
         axios.get(`${adminUrl}unListDepartment/${id}`,{headers}).then((response)=>{
-            response.status === 200 ? (reload ? setReload(false):setReload(true)) : toast.error('some unexpected errors')
+            response.status === 200 ? setReload(reload => !reload) : toast.error('some unexpected errors')
         }).catch((err)=>{
             err?.response?.status === 401 ? Navigate('/admin') : toast.error('something went wrong')
         })
@@ -42,7 +42,7 @@ function Departments() {
     const listDepartment = (id)=>{
         const headers = {Authorization:token}
         axios.get(`${adminUrl}listDepartment/${id}`,{headers}).then((response)=>{
-            response.status === 200 ? (reload ? setReload(false):setReload(true)) : toast.error('some unexpected errors')
+            response.status === 200 ? setReload(reload => !reload) : toast.error('some unexpected errors')
         }).catch((err)=>{
             err?.response?.status === 401 ? Navigate('/admin') : toast.error('something went wrong')
         })

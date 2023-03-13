@@ -15,7 +15,7 @@ router.post('/resendOtp',resendOtp)
 router.post('/forgotPass',forgotPassOtp)
 router.post('/resetPass',resetPass)
 router.post('/googleUserDetails',saveGoogleUser)
-router.get('/getDepartments',getDepartment)
+router.get('/getDepartments/:pageNo',getDepartment)
 router.get('/getDoctorsByDepartment/:id',userAuthentication,getDoctorsByDep)
 router.get('/getDoctors',userAuthentication,getDoctors)
 

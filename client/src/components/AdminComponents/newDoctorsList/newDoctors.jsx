@@ -42,13 +42,12 @@ function NewDoctors() {
     }, [reload])
 
     const approveDoctor = (doctorId) => {
-        changeLoading(true)
         const headers = {authorization:token}
         axios.get(`${adminUrl}approve/${doctorId}`,{headers}).then((response) => {
-            response.data && reload ? setReload(false) : setReload(true)
+            response.status === 200 && setReload(reload=>!reload)
         }).catch((err)=>{
             err?.response?.status === 401 ? Navigate('/admin') : toast.error('something went wrong')
-        }).finally(() => changeLoading(false))
+        })
     }
 
     const handleClickOpen = () => {
@@ -60,13 +59,12 @@ function NewDoctors() {
 
     const rejectDoctor = (doctorId) => {
         setOpen(false)
-        changeLoading(true)
         const headers = {authorization:token}
         axios.post(`${adminUrl}reject`, { doctorId, reject },{headers}).then((response) => {
-            response.data && reload ? setReload(false) : setReload(true)
+            response.status === 200 && setReload(reload=>!reload)
         }).catch((err)=>{
             err?.response?.status === 401 ? Navigate('/admin') : toast.error('something went wrong')
-        }).finally(() => changeLoading(false))
+        })
     }
 
     const columns = [

@@ -16,6 +16,7 @@ import {
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import axios from 'axios';
 import { adminUrl } from '../../../../apiLinks/apiLinks';
+import { toast, Toaster } from 'react-hot-toast';
 
 const StyledForm = styled('form')(({ theme }) => ({
   width: '100%',
@@ -32,16 +33,17 @@ const AdminLogin = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
     axios.post(`${adminUrl}logIn`,{email,password}).then((response)=>{
-        if(response.data.token){
-          localStorage.setItem('adminToken',response.data.token)
-          response.data.status ? Navigate('/admin/home') : setErr(true)
-        }else{
-            setErr(true)
-        }
+         response.data.token && localStorage.setItem('adminToken',response.data.token)
+          response.data.logIn ? Navigate('/admin/home') : toast.error('Invalid Email or Password')
+        
+    }).catch(()=>{
+        toast.error('some unexpected error please try after sometime')
     })
   };
 
   return (
+    <>
+    <Toaster/>
     <Box
       sx={{
         height: '100vh',
@@ -135,6 +137,7 @@ const AdminLogin = () => {
         </Paper>
       </Container>
     </Box>
+    </>
   );
 };
 

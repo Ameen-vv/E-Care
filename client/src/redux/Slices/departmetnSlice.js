@@ -2,9 +2,10 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { userUrl } from "../../../apiLinks/apiLinks";
 
-export const fetchDepartments = createAsyncThunk('department/fetchDepartments',()=>{
+export const fetchDepartments = createAsyncThunk('department/fetchDepartments',(pageNo)=>{
     return (
-        axios.get(`${userUrl}getDepartments`).then((response)=>{
+        axios.get(`${userUrl}getDepartments/${pageNo}`).then((response)=>{
+            console.log('fydaygd')
             let result={
                 data:response.data,
                 status:response.status
@@ -34,6 +35,7 @@ const departmentSlice = createSlice({
             state.departments = []
             state.error = true
         })
+        
     }
 })
 

@@ -15,7 +15,7 @@ router.get('/getDepartments',getDepartment)
 router.get('/getDocDetails',doctorAuthentication,getDocDetails)
 router.post('/editProfile',doctorAuthentication,editProfile)
 router.post('/editTime',doctorAuthentication,timeSlots)
-router.post('/deleteSlot/:id',doctorAuthentication,deleteSlot)
-router.post('/editProfilePic/:id',doctorAuthentication,editProfilePic)
+router.post('/deleteSlot',doctorAuthentication,deleteSlot)
+router.post('/editProfilePic',doctorAuthentication,editProfilePic)
 
 export default router

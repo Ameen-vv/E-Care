@@ -11,7 +11,7 @@ function AdminRoutes() {
       const token = localStorage.getItem('adminToken')
       const headers = {authorization:token}
       axios.get(`${adminUrl}authenticate`,{headers}).then((response)=>{
-              response.status === 200 ? setAdminCheck(true) : Navigate('/admin')
+          response.status === 200 ? setAdminCheck(true) : Navigate('/admin')
       }).catch((err)=>{
         Navigate('/admin')
       })
