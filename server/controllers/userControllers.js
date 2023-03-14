@@ -231,9 +231,16 @@ export const saveGoogleUser = (req, res) => {
 
 export const getDepartment = async(req, res) => {
     try {
-        let pageNo = req.params.pageNo
-        let count = await departmentModel.countDocuments({list:true})
-        departmentModel.find({ list: true }).limit(pageNo*4).then((departments) => {
+        let pageNo = req.query.pageNo
+        let searchQuery = req.query.search ?? null
+        let query = {
+            list:true
+        }
+        searchQuery && (query.name={$regex:new RegExp(`${searchQuery}.*`,"i")})
+
+        let count = await departmentModel.countDocuments(query)
+        departmentModel.find(query).limit(pageNo*4).then((departments) => {
+            console.log(count);
             res.status(200).json({departments,count})
         })
     } catch (err) {
@@ -262,3 +269,4 @@ export const getDoctors = (req, res) => {
         res.status(500)
     }
 }
+

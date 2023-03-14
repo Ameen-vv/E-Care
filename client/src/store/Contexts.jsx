@@ -15,7 +15,10 @@ function Contexts({children}) {
     const token = localStorage.getItem('doctorToken')
     const headers = {Authorization:token}
     axios.get(`${doctorUrl}authenticate`, {headers}).then((response) => {
+      console.log('thsi');
       response.data.user ? SetUser('doctor') : SetUser(null)
+    }).catch(()=>{
+      SetUser(null)
     })
   }
   useEffect(() => {
@@ -24,6 +27,8 @@ function Contexts({children}) {
       const headers = {Authorization:token}
       axios.get(`${userUrl}authenticate`, {headers}).then((response) => {
         response.data.user ? SetUser('user') : doctorCheck()
+      }).catch(()=>{
+        doctorCheck()
       })
     }else{
       doctorCheck()

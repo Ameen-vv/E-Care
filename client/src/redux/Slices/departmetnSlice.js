@@ -2,24 +2,49 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { userUrl } from "../../../apiLinks/apiLinks";
 
-export const fetchDepartments = createAsyncThunk('department/fetchDepartments',(pageNo)=>{
+export const fetchDepartments = createAsyncThunk('department/fetchDepartments',({search,pageNo})=>{
     return (
-        axios.get(`${userUrl}getDepartments/${pageNo}`).then((response)=>{
-            console.log('fydaygd')
+        axios.get(`${userUrl}getDepartments?search=${search}&pageNo=${pageNo}`).then((response)=>{
             let result={
                 data:response.data,
                 status:response.status
             }
             return result
+        }).catch((err)=>{
+            let error = {
+                status : err?.response?.status,
+                message: err?.message
+            }
+            return error
         })
     )
 })
+export const searchDepartment = createAsyncThunk('department/searchDepartment',({search,searchPageNo})=>{
+    return(
+        axios.get(`${userUrl}searchDepartment?word=${search}&pageNo=${searchPageNo}`).then((response)=>{
+            let result={
+                data:response.data,
+                status:response.status
+            }
+            return result
+        }).catch((err)=>{
+            let error = {
+                status : err?.response?.status,
+                message: err?.message
+            }
+            return error
+        })
+    )
+})
+
+
 const departmentSlice = createSlice({
     name:'department',
     initialState:{
         loading:false,
         departments:[],
-        error:false
+        error:null,
+        status:200
     },
     extraReducers:builder =>{
         builder.addCase(fetchDepartments.pending,state=>{
@@ -28,12 +53,29 @@ const departmentSlice = createSlice({
         builder.addCase(fetchDepartments.fulfilled,(state,action)=>{
             state.loading = false
             state.departments = action.payload.data
-            state.error = false
+            state.error = null
+            state.status = action.payload.status
         })
         builder.addCase(fetchDepartments.rejected,(state,action)=>{
             state.loading = false
             state.departments = []
-            state.error = true
+            state.error = action.error.message
+            state.status = action.error.status
+        })
+        builder.addCase(searchDepartment.pending,(state)=>{
+            state.loading = true
+        })
+        builder.addCase(searchDepartment.fulfilled,(state,action)=>{
+            state.loading = false
+            state.departments = action.payload.data
+            state.error = null
+            state.status = action.payload.status
+        })
+        builder.addCase(searchDepartment.rejected,(state,action)=>{
+            state.loading = false
+            state.departments = []
+            state.error = action.error.message
+            state.status = action.error.status
         })
         
     }

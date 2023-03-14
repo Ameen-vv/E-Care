@@ -1,26 +1,26 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
+import { toast, Toaster } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { depContext } from '../../pages/User/Departments/DepartmentPage';
 import { fetchDepartments } from '../../redux/Slices/departmetnSlice';
 import './DepartmentSection.css'
 
-function Test() {
-  const departmentsData = useSelector(state => state.department)
-  const dispatch = useDispatch()
-  const Navigate = useNavigate()
-  const [pageNo, setPageNo] = useState(1)
-  useEffect(() => {
-    console.log('sdaasda');
-    setPageNo(5)
-    console.log(pageNo);
-    // dispatch(fetchDepartments(pageNo))
-  },[pageNo])
+const DepartmentSection = ({departmentsData}) => {
 
+  const Navigate = useNavigate()
+  const {pageNo,setPageNo} = useContext(depContext)
+  
+  departmentsData.status != 200 && toast.error('something wrong')
+  const handleSubmit = ()=>{
+    SearchItem()
+  }
   const viewDoctors = (id) => {
     Navigate('/doctorList', { state: { departmentId: id } })
   }
 
 return (<>
+    <Toaster/>
     {departmentsData.loading && <div className="fixed top-0 left-0 w-screen h-screen flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
       <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
     </div>}
@@ -28,7 +28,7 @@ return (<>
       <div className="container my-12 mx-auto px-4 md:px-12 lg:w-4/5 sm:w-full  ">
         <div className="flex flex-wrap -mx-1 lg:-mx-4 card-class ">
           {/* <div className='ms-4 w-full justify-start flex department-subheading mt-5  w-3/4 mb-3'><h1 className=''>Top Departments</h1></div> */}
-          {departmentsData.departments.departments.map((Department, index) => (
+          {departmentsData.departments && departmentsData?.departments?.departments?.map((Department, index) => (
             <div key={index} className="my-1 px-2 w-full md:w-1/2 lg:my-4 lg:px-3 lg:w-1/3  xl:w-1/4 cursor-pointer hover:scale-105 ease-in-out duration-200">
               <article className="overflow-hidden rounded-lg shadow-lg bg-white hover:bg-blue-50 h-[auto]">
                 <div className="flex items-center justify-center leading-tight p-2 md:p-4 w -full">
@@ -77,11 +77,11 @@ return (<>
               </article>
             </div>
           ))}
-          <div className='w-full flex justify-center mt-3'><button className={`btn bg-mainColor text-white hover:bg-secColor ${departmentsData.departments.count <= pageNo * 4 ? 'hidden' : ''} me-2`}
+          <div className='w-full flex justify-center mt-5'><button className={`btn bg-mainColor text-white hover:bg-secColor ${departmentsData?.departments?.count <= pageNo * 4 && 'hidden' } me-2`}
             onClick={() => setPageNo(pageNo => pageNo + 1)}>Show More</button>
-            <button className={`btn bg-mainColor text-white hover:bg-secColor ${pageNo <= 1 ? 'hidden' : ''}`}
+            <button className={`btn bg-mainColor text-white hover:bg-secColor ${pageNo <= 1 && 'hidden'}`}
               onClick={() => setPageNo(pageNo => pageNo - 1)}>Show Less</button>
-          </div>
+          </div> 
         </div>
 
       </div>
@@ -90,4 +90,4 @@ return (<>
   )
 }
 
-export default Test
+export default DepartmentSection

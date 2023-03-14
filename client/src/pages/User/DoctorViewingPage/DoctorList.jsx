@@ -4,11 +4,13 @@ import { useLocation } from 'react-router-dom'
 import List from '../../../components/DoctorsViewUser/DoctorsViewUser'
 import Footer from '../../../components/Footer/Footer'
 import Header from '../../../components/Header/Header'
+import { fetchDepartments } from '../../../redux/Slices/departmetnSlice'
 import { fetchDoctors } from '../../../redux/Slices/doctorSlice'
 
 const DoctorList = ()=> {
   const location = useLocation()
   let result = useSelector(state=>state.doctor)
+  let department = useSelector(state=>state.department)
   const dispatch = useDispatch()
   useEffect(()=>{
     dispatch(fetchDoctors(location?.state?.departmentId))
